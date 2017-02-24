@@ -1,0 +1,27 @@
+# Conflict Network CorePlugin - Settings.yml configuration file
+settings:
+  # Enable test commands and in-dev features
+  testing-mode: false
+  # Print debug messages in console
+  enable-debug: false
+  # Time until the server automatically restarts in seconds
+  restart-time: 3600
+  database:
+    auth:
+      host: "172.106.17.114"
+      user: "12"
+      password: "0d5b45c4ee"
+      name: "12"
+      port: 3306
+    bans:
+      host: "172.106.17.114"
+      user: "12"
+      password: "0d5b45c4ee"
+      name: "12"
+      port: 3306
+    ranks:
+      host: "172.106.17.114"
+      user: "12"
+      password: "0d5b45c4ee"
+      name: "12"
+      port: 3306
