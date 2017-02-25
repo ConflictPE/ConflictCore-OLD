@@ -3,6 +3,7 @@ description: Custom version of Components for ConflictPE
 authors:
 - Jack Noordhuis
 version: 0.0.1_ALPHA
+load: STARTUP
 main: \core\Main
 api:
 - 2.0.0

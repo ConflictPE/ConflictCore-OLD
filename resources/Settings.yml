@@ -4,8 +4,14 @@ settings:
   testing-mode: false
   # Print debug messages in console
   enable-debug: false
+  # Gamemode of the server (used to make sure players don't try and transfer to a server they're on)
+  gamemode: prison
   # Time until the server automatically restarts in seconds
   restart-time: 3600
+  # List of servers available through the play command
+  servers:
+    factions: fac.conflictpe.net
+    prison: psn.conflictpe.net
   database:
     auth:
       host: "172.106.17.114"

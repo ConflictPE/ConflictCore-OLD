@@ -39,7 +39,7 @@
   "PASSWORD_CHANGE_ERROR": "&6- &cUh oh, looks like there was an error changing your password.",
   "SERVER_NAME": "&l&1C&ar&ea&6z&9e&5d&fC&7r&6a&cf&dt &6Server&r",
   "KICK_BANNED_MOD": "&cYou have been kicked for using a banned client modification &6({args1})&c.\n&6Please disable your modified client to continue playing.",
-  "TESTING_NOT_ENABLED": "&cThis feature is currently only avalible in testing mode!",
+  "TESTING_NOT_ENABLED": "&cThis feature is currently only available in testing mode!",
   "SKIN_DUMPED": "&6- &aDumped skin successfully!",
   "TOGGLED_PLAYERS": "§6- §aYou have successfully toggled player visibility!",
   "TOGGLE_PLAYERS_WARNING": "§7You won't able to see players in pvp zones until you do /toggleplayers to toggle player visibility.§r",

@@ -571,13 +571,15 @@ class CorePlayer extends Player {
 	 * @return bool
 	 */
 	public function attack($damage, EntityDamageEvent $source) {
+		$result = true;
 		if($this->authenticated) {
-			parent::attack($damage, $source);
+			$result = parent::attack($damage, $source);
 			if(!$source->isCancelled()) $this->lastDamagedTime = microtime(true);
+			return $result;
 		} else {
 			$source->setCancelled(true);
 		}
-		return $source->isCancelled();
+		return false;
 	}
 
 	/**
@@ -666,13 +668,13 @@ class CorePlayer extends Player {
 				$this->kill();
 			} else {
 				$block = $this->getLevel()->getBlock(new Vector3($this->getFloorX(), $this->getFloorY() - 1, $this->getFloorZ()));
-				if(round($event->getTo()->getY() - $event->getFrom()->getY(), 3) >= 0.375 && $block->getId() === Block::AIR and floor(microtime(true) - $this->lastDamagedTime) >= 5/* and !$block->getId() === Block::LAVA and !$block->getId() === Block::STILL_LAVA and !$block->getId() === Block::WATER and !$block->getId() === Block::STILL_WATER and !$block->getId() === Block::RED_SANDSTONE_SLAB and !$block->getId() === Block::ACTIVATOR_RAIL and !$block->getId() === Block::SLAB*/) {
+				if(($this->isSurvival() or $this->isAdventure()) and round($event->getTo()->getY() - $event->getFrom()->getY(), 3) >= 0.375 && $block->getId() === Block::AIR and floor(microtime(true) - $this->lastDamagedTime) >= 5/* and !$block->getId() === Block::LAVA and !$block->getId() === Block::STILL_LAVA and !$block->getId() === Block::WATER and !$block->getId() === Block::STILL_WATER and !$block->getId() === Block::RED_SANDSTONE_SLAB and !$block->getId() === Block::ACTIVATOR_RAIL and !$block->getId() === Block::SLAB*/) {
 					$this->flyChances++;
 				} else {
 					$this->flyChances = 0;
 				}
 				if($this->flyChances >= 6) {
-					$this->kick($this->getCore()->getLanguageManager()->translateForPlayer($this, "KICK_BANNED_MOD", ["Fly"]));
+					$this->kick($this->getCore()->getLanguageManager()->translateForPlayer($this, "KICK_BANNED_MOD", ["Fly"]), false);
 				}
 			}
 		}

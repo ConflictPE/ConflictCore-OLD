@@ -71,6 +71,7 @@ abstract class HumanNPC extends Human implements BaseNPC {
 			$pk->speedZ = $this->motionZ;
 			$pk->yaw = $this->yaw;
 			$pk->pitch = $this->pitch;
+			$pk->item = $this->getInventory()->getItemInHand();
 			$pk->metadata = $this->dataProperties;
 			$player->dataPacket($pk);
 
@@ -115,7 +116,7 @@ abstract class HumanNPC extends Human implements BaseNPC {
 			throw new PluginException("Core plugin isn't loaded!");
 		}
 		$this->name = $this->getNameTag();
-		$this->core->freezeLoadedChunks();
+		$this->getLevel()->getChunk($this->x >> 4, $this->z >> 4)->allowUnload = false;
 		$this->setImmobile(true);
 		$this->setNameTagVisible();
 		$this->setNameTagAlwaysVisible();

@@ -21,6 +21,7 @@ namespace core\command;
 use core\command\commands\ChangePasswordCommand;
 use core\command\commands\DumpSkinCommand;
 use core\command\commands\LoginCommand;
+use core\command\commands\PlayCommand;
 use core\command\commands\RegisterCommand;
 use core\command\commands\StaffChatCommand;
 use core\command\commands\TestCommand;
@@ -56,6 +57,7 @@ class CoreCommandMap {
 			new ChangePasswordCommand($this->plugin),
 			new DumpSkinCommand($this->plugin),
 			new LoginCommand($this->plugin),
+			new PlayCommand($this->plugin),
 			new RegisterCommand($this->plugin),
 			new StaffChatCommand($this->plugin),
 			new TestCommand($this->plugin),

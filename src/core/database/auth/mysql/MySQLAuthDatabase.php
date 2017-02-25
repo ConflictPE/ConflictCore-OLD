@@ -40,7 +40,7 @@ class MySQLAuthDatabase extends MySQLDatabase implements AuthDatabase {
 	 */
 	public function init() {
 		$this->getPlugin()->getServer()->getScheduler()->scheduleAsyncTask(new CheckDatabaseRequest($this));
-		$this->updateScheduler = new UpdateRequestScheduler($this->getPlugin());
+		//$this->updateScheduler = new UpdateRequestScheduler($this->getPlugin());
 	}
 
 	public function register($name, $hash, $email) {
