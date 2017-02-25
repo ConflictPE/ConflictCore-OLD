@@ -577,7 +577,7 @@ class CorePlayer extends Player {
 		} else {
 			$source->setCancelled(true);
 		}
-		return true;
+		return $source->isCancelled();
 	}
 
 	/**
