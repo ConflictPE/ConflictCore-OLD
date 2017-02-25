@@ -571,13 +571,13 @@ class CorePlayer extends Player {
 	 * @return bool
 	 */
 	public function attack($damage, EntityDamageEvent $source) {
-		if($this->state === self::STATE_PLAYING) {
+		if($this->authenticated) {
 			parent::attack($damage, $source);
 			if(!$source->isCancelled()) $this->lastDamagedTime = microtime(true);
-			return true;
+		} else {
+			$source->setCancelled(true);
 		}
-		$source->setCancelled(true);
-		return $source->isCancelled();
+		return true;
 	}
 
 	/**
@@ -627,6 +627,7 @@ class CorePlayer extends Player {
 								} else {
 									$event->setCancelled(false);
 								}
+								$this->setLastMessage($message);
 							} else {
 								$this->sendTranslatedMessage("MESSAGES_TOO_SIMILAR", [], true);
 							}
