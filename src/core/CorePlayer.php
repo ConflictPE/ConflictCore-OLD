@@ -582,20 +582,15 @@ class CorePlayer extends Player {
 		return false;
 	}
 
-	/**
-	 * Ensures players don't actually die
-	 *
-	 * @param bool $forReal
-	 * @return bool
-	 */
-	public function kill($forReal = false) {
-		if($forReal) return parent::kill();
-		$this->teleport($this->getServer()->getDefaultLevel()->getSafeSpawn());
-		$this->setHealth($this->getMaxHealth());
-		$inv = $this->getInventory();
-		if($inv instanceof PlayerInventory) $this->getInventory()->clearAll();
-		return true;
-	}
+	///**
+	// * Ensures players don't actually die
+	// *
+	// * @param bool $forReal
+	// * @return bool
+	// */
+	//public function kill($forReal = false) {
+	//
+	//}
 
 	/**
 	 * @param Player $player
