@@ -93,6 +93,8 @@ class HologramCommand extends CoreUserCommand {
 							$hologram = $text[$player->getLevel()->getName()][$id];
 							if($hologram instanceof FloatingText) {
 								$hologram->setText(implode(" ", $args));
+								$hologram->doTextUpdate();
+								$hologram->update();
 								$player->sendMessage(TextFormat::GOLD . "- " . TextFormat::GREEN . "Edited hologram successfully!" . TextFormat::RESET);
 								$this->getPlugin()->getFloatingTextManager()->saveText();
 							} else {
@@ -115,6 +117,7 @@ class HologramCommand extends CoreUserCommand {
 							if($hologram instanceof FloatingText) {
 								$hologram->despawnFromAll();
 								$this->getPlugin()->getFloatingTextManager()->removeText($player->getLevel(), $id);
+								$player->sendMessage(TextFormat::GOLD . "- " . TextFormat::GREEN . "Hologram has been deleted!" . TextFormat::RESET);
 								$this->getPlugin()->getFloatingTextManager()->saveText();
 							} else {
 								$player->sendMessage(TextFormat::GOLD . "- " . TextFormat::GOLD . "There was an issue deleting the hologram, please restart the server and try again!" . TextFormat::RESET);
