@@ -19,11 +19,13 @@
 namespace core\entity\text;
 
 use core\Main;
+use core\Utils;
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\level\Position;
 use pocketmine\network\protocol\AddPlayerPacket;
 use pocketmine\network\protocol\RemoveEntityPacket;
+use pocketmine\network\protocol\SetEntityDataPacket;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\utils\UUID;
@@ -34,20 +36,62 @@ class FloatingText {
 	protected $pos;
 
 	/** @var string */
-	protected $text = "";
+	protected $rawText = "";
 
 	/** @var int */
 	protected $eid;
 
 	/** @var array */
+	protected $metadata = [];
+
+	/** @var array */
 	protected $hasSpawned = [];
+
+	public static function fromSaveData(array $data) {
+		return new FloatingText(Utils::parsePosition($data["pos"] . ", "), $data["text"]);
+	}
 
 	public function __construct(Position $pos, $text) {
 		$this->pos = $pos;
-		$this->text = $text;
-		$this->eid = bcadd("1095216660480", mt_rand(0, 0x7fffffff));
+		$this->rawText = $text;
+		$this->eid = Entity::$entityCount++;
+		$flags = 0;
+		$flags |= 1 << Entity::DATA_FLAG_INVISIBLE;
+		$flags |= 1 << Entity::DATA_FLAG_CAN_SHOW_NAMETAG;
+		$flags |= 1 << Entity::DATA_FLAG_ALWAYS_SHOW_NAMETAG;
+		$flags |= 1 << Entity::DATA_FLAG_IMMOBILE;
+		$flags |= 1 << Entity::DATA_FLAG_LEASHED;
+		$this->metadata = [
+			Entity::DATA_FLAGS => [Entity::DATA_TYPE_LONG, $flags],
+			Entity::DATA_NAMETAG => [Entity::DATA_TYPE_STRING, (string)$text],
+			Entity::DATA_LEAD_HOLDER_EID => [Entity::DATA_TYPE_LONG, -1]
+		];
+		$this->doTextUpdate();
 		$this->spawnToAll();
-		Main::getInstance()->floatingText[] = $this;
+	}
+
+	public function getSaveData() : array {
+		return [
+			"pos" => "{$this->pos->x}, {$this->pos->y}, {$this->pos->z}, {$this->pos->getLevel()->getName()}",
+			"text" => $this->getText()
+		];
+	}
+
+	public function getId() {
+		return $this->eid;
+	}
+
+	public function getText() : string {
+		return $this->rawText;
+	}
+
+	public function setText(string $text) {
+		$this->rawText = $text;
+		$this->doTextUpdate();
+	}
+
+	public function getPosition() : Position {
+		return $this->pos;
 	}
 
 	/**
@@ -57,7 +101,7 @@ class FloatingText {
 	 */
 	public function spawnToAll(array $players = []) {
 		if(empty($players)) {
-			$players = Server::getInstance()->getOnlinePlayers();
+			$players = $this->pos->getLevel()->getPlayers();
 		}
 		foreach($players as $p) {
 			$this->spawnTo($p);
@@ -66,12 +110,12 @@ class FloatingText {
 
 	/**
 	 * Despawn the floating text from an array of players
-	 * 
+	 *
 	 * @param array $players
 	 */
 	public function despawnFromAll(array $players = []) {
 		if(empty($players)) {
-			$players = Server::getInstance()->getOnlinePlayers();
+			$players = $this->hasSpawned;
 		}
 		foreach($players as $p) {
 			$this->despawnFrom($p);
@@ -80,15 +124,15 @@ class FloatingText {
 
 	/**
 	 * Spawn the floating text to a player
-	 * 
+	 *
 	 * @param Player $player
 	 */
 	public function spawnTo(Player $player) {
 		if($player !== $this and !isset($this->hasSpawned[$player->getId()])) {
 			$this->hasSpawned[$player->getId()] = $player;
-
 			$pk = new AddPlayerPacket();
 			$pk->eid = $this->eid;
+			$pk->username = "";
 			$pk->uuid = UUID::fromRandom();
 			$pk->x = $this->pos->x;
 			$pk->y = $this->pos->y - 1.62;
@@ -99,33 +143,53 @@ class FloatingText {
 			$pk->yaw = 0;
 			$pk->pitch = 0;
 			$pk->item = Item::get(0);
-			$flags = 0;
-			$flags |= 1 << Entity::DATA_FLAG_INVISIBLE;
-			$flags |= 1 << Entity::DATA_FLAG_CAN_SHOW_NAMETAG;
-			$flags |= 1 << Entity::DATA_FLAG_ALWAYS_SHOW_NAMETAG;
-			$flags |= 1 << Entity::DATA_FLAG_IMMOBILE;
-			$pk->metadata = [
-				Entity::DATA_FLAGS => [Entity::DATA_TYPE_LONG, $flags],
-				Entity::DATA_NAMETAG => [Entity::DATA_TYPE_STRING, $this->text],
-			];
 			$player->dataPacket($pk);
-			$player->dataPacket($pk);
+			$this->update([$player]);
 		}
 	}
 
 	/**
 	 * Despawn the floating text from a player
-	 * 
+	 *
 	 * @param Player $player
 	 */
 	public function despawnFrom(Player $player) {
 		if(isset($this->hasSpawned[$player->getId()])) {
 			unset($this->hasSpawned[$player->getId()]);
-
 			$pk = new RemoveEntityPacket();
 			$pk->eid = $this->eid;
 			$player->dataPacket($pk);
 		}
+	}
+
+	/**
+	 * @param Player[] $players
+	 */
+	public function update(array $players = []) {
+		if(empty($players)) {
+			$players = $this->hasSpawned;
+		}
+		$pk = new SetEntityDataPacket();
+		$pk->eid = $this->eid;
+		$pk->metadata = $this->metadata;
+		Server::getInstance()->broadcastPacket($players, $pk);
+	}
+
+	public function doTextUpdate() {
+		$this->metadata[Entity::DATA_NAMETAG] = [Entity::DATA_TYPE_STRING, str_replace([
+			"{players}",
+			"{max_players}",
+			"{level_players}",
+			"{level_name}",
+			"{break}"
+		], [
+			count(Server::getInstance()->getOnlinePlayers()),
+			Server::getInstance()->getMaxPlayers(),
+			count($this->pos->getLevel()->getPlayers()),
+			$this->pos->getLevel()->getName(),
+			"\n",
+
+		], $this->rawText)];
 	}
 
 }

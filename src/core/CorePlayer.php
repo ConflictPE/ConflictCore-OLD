@@ -112,6 +112,9 @@ class CorePlayer extends Player {
 	/** @var bool */
 	private $isSubscribedToStaffChat = false;
 
+	/** @var bool */
+	private $hasHologramIdSession = false;
+
 	/** Game statuses */
 	const STATE_LOBBY = "state.lobby";
 	const STATE_PLAYING = "state.playing";
@@ -281,6 +284,13 @@ class CorePlayer extends Player {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function hasHologramIdSession() {
+		return $this->hasHologramIdSession;
+	}
+
+	/**
 	 * @return Main
 	 */
 	public function getCore() {
@@ -419,6 +429,13 @@ class CorePlayer extends Player {
 	 */
 	public function subscribeToStaffChat($value = true) {
 		$this->isSubscribedToStaffChat = $value;
+	}
+
+	/**
+	 * @param bool $value
+	 */
+	public function setHologramIdSession($value = true) {
+		$this->hasHologramIdSession = $value;
 	}
 
 	/**

@@ -30,3 +30,10 @@ permissions:
       staffchat.toggle:
         description: "Allows you to toggle the staff chat"
         default: op
+  hologram:
+    description: "Main hologram permission node"
+    default: op
+    children:
+      hologram.command:
+        description: "Allows you to use the hologram command"
+        default: op

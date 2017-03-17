@@ -24,6 +24,7 @@ use core\task\KickTask;
 use pocketmine\entity\Entity;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\block\BlockPlaceEvent;
+use pocketmine\event\entity\EntityLevelChangeEvent;
 use pocketmine\event\entity\ProjectileHitEvent;
 use pocketmine\event\level\LevelLoadEvent;
 use pocketmine\event\Listener;
@@ -37,6 +38,8 @@ use pocketmine\event\player\PlayerKickEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\player\PlayerPreLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\network\protocol\InteractPacket;
 use pocketmine\utils\TextFormat;
 
 class CoreListener implements Listener {
@@ -53,7 +56,7 @@ class CoreListener implements Listener {
 		"claim",
 		"r",
 		"help",
-		"h"
+		"h",
 	];
 
 	/* Array of banned commands */
@@ -85,12 +88,13 @@ class CoreListener implements Listener {
 	}
 
 	/**
-	 * Make sure all worlds don't save and the time is locked
+	 * Handle level load
 	 *
 	 * @param LevelLoadEvent $event
 	 */
 	public function onLevelLoad(LevelLoadEvent $event) {
 		$level = $event->getLevel();
+		$this->plugin->getFloatingTextManager()->onLevelLoad($event->getLevel());
 		$level->setAutoSave(false);
 		$level->setTime(6000);
 		$level->stopTime();
@@ -107,6 +111,11 @@ class CoreListener implements Listener {
 		$event->setPlayerClass(CorePlayer::class);
 	}
 
+	/**
+	 * Handle player pre-login
+	 *
+	 * @param PlayerPreLoginEvent $event
+	 */
 	public function onPreLogin(PlayerPreLoginEvent $event) {
 		/** @var CorePlayer $player */
 		$player = $event->getPlayer();
@@ -138,6 +147,11 @@ class CoreListener implements Listener {
 		$player->setChatMuted(true);
 	}
 
+	/**
+	 * Handle player join
+	 *
+	 * @param PlayerJoinEvent $event
+	 */
 	public function onJoin(PlayerJoinEvent $event) {
 		/** @var CorePlayer $player */
 		$player = $event->getPlayer();
@@ -157,9 +171,7 @@ class CoreListener implements Listener {
 				return;
 			}
 		}
-		foreach($this->plugin->floatingText as $text) {
-			if($text instanceof FloatingText) $text->spawnTo($player);
-		}
+		$this->plugin->getFloatingTextManager()->onJoin($player);
 	}
 
 	/**
@@ -286,13 +298,56 @@ class CoreListener implements Listener {
 		}
 	}
 
+	/**
+	 * Handle entity level change
+	 *
+	 * @param EntityLevelChangeEvent $event
+	 */
+	public function onLevelChange(EntityLevelChangeEvent $event) {
+		$player = $event->getEntity();
+		if($player instanceof CorePlayer) {
+			$this->plugin->getFloatingTextManager()->onLevelChange($player, $event->getOrigin(), $event->getTarget());
+		}
+	}
+
+	/**
+	 * Handle data packet receive
+	 *
+	 * @param DataPacketReceiveEvent $event
+	 */
+	public function onDataPacketReceive(DataPacketReceiveEvent $event) {
+		$pk = $event->getPacket();
+		if($pk instanceof InteractPacket) {
+			/** @var CorePlayer $player */
+			$player = $event->getPlayer();
+			if($player->hasHologramIdSession()) {
+				$text = $this->plugin->getFloatingTextManager()->getFloatingText();
+				if(isset($text[$player->getLevel()->getName()][$pk->target])) {
+					$player->sendMessage(TextFormat::GOLD . "- " . TextFormat::GREEN . "Hologram ID: " . TextFormat::GRAY . $pk->target);
+					$player->setHologramIdSession(false);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Handle player quit
+	 *
+	 * @param PlayerQuitEvent $event
+	 */
 	public function onQuit(PlayerQuitEvent $event) {
-		///** @var CorePlayer $player */
-		//$player = $event->getPlayer();
+		/** @var CorePlayer $player */
+		$player = $event->getPlayer();
+		$this->plugin->getFloatingTextManager()->onQuit($player);
 		$event->setQuitMessage("");
 		//$this->plugin->getDatabaseManager()->getAuthDatabase()->update($player->getName(), $player->getAuthData());
 	}
 
+	/**
+	 * Handle player kicks
+	 *
+	 * @param PlayerKickEvent $event
+	 */
 	public function onKick(PlayerKickEvent $event) {
 		///** @var CorePlayer $player */
 		//$player = $event->getPlayer();

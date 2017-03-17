@@ -22,6 +22,7 @@ use core\command\CoreCommandMap;
 use core\database\CoreDatabaseManager;
 use core\entity\antihack\KillAuraDetector;
 use core\entity\text\FloatingText;
+use core\entity\text\FloatingTextManager;
 use core\language\LanguageManager;
 use core\task\ReportErrorTask;
 use core\task\RestartTask;
@@ -55,8 +56,8 @@ class Main extends PluginBase {
 	/** @var LanguageManager */
 	private $languageManager;
 
-	/** @var FloatingText */
-	public $floatingText = [];
+	/** @var FloatingTextManager */
+	private $floatingTextManager;
 
 	/** @var RestartTask */
 	private $restartTask;
@@ -70,6 +71,8 @@ class Main extends PluginBase {
 	/** Resource files & paths */
 	const SETTINGS_FILE = "Settings.yml";
 	const ERROR_REPORT_LOG = "error_log.json";
+	const DATA_FOLDER = "data/";
+	const FLOATING_TEXT_DATA_FILE = "data/holograms.json";
 
 	public function onLoad() {
 		$this->loadTime = microtime(true);
@@ -81,6 +84,7 @@ class Main extends PluginBase {
 	public function onEnable() {
 		Main::$testing = $this->settings->getNested("settings.testing-mode", false);
 		Main::$debug = $this->settings->getNested("settings.enable-debug", false);
+		if(Main::$testing) $this->enableTesting();
 		$this->debug("Enabling command map...");
 		$this->setCommandMap();
 		$this->debug("Initializing database manager...");
@@ -89,6 +93,8 @@ class Main extends PluginBase {
 		$this->setListener();
 		$this->debug("Enabling language manager...");
 		$this->setLanguageManager();
+		$this->debug("Enabling floating text manager...");
+		$this->setFloatingTextManager();
 		$this->debug("Applying finishing touches...");
 		$this->getServer()->getNetwork()->setName($this->languageManager->translate("SERVER_NAME", "en"));
 		$this->restartTask = new RestartTask($this);
@@ -132,6 +138,8 @@ class Main extends PluginBase {
 		$this->settings = new Config($this->getDataFolder() . self::SETTINGS_FILE, Config::YAML);
 		$this->saveResource(self::ERROR_REPORT_LOG);
 		$this->errorLog = new Config($this->getDataFolder() . self::ERROR_REPORT_LOG, Config::JSON);
+		if(!is_dir($this->getDataFolder() . self::DATA_FOLDER)) @mkdir($this->getDataFolder() . self::DATA_FOLDER);
+		$this->saveResource($this->getDataFolder() . self::FLOATING_TEXT_DATA_FILE);
 	}
 
 	/**
@@ -178,6 +186,10 @@ class Main extends PluginBase {
 		return $this->languageManager;
 	}
 
+	public function getFloatingTextManager() : FloatingTextManager {
+		return $this->floatingTextManager;
+	}
+
 	/**
 	 * Set the command map
 	 */
@@ -204,6 +216,13 @@ class Main extends PluginBase {
 	 */
 	public function setLanguageManager() {
 		$this->languageManager = new LanguageManager($this);
+	}
+
+	/**
+	 * Set the floating text manager
+	 */
+	public function setFloatingTextManager() {
+		$this->floatingTextManager = new FloatingTextManager($this);
 	}
 
 	/**

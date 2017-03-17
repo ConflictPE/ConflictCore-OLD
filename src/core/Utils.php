@@ -20,6 +20,7 @@ namespace core;
 
 use pocketmine\level\Level;
 use pocketmine\level\Position;
+use pocketmine\level\WeakPosition;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat as TF;
@@ -46,10 +47,10 @@ class Utils {
 	public static function parsePosition(string $string) {
 		$data = explode(",", str_replace(" ", "", $string));
 		$level = Server::getInstance()->getLevelByName($data[3]);
-		if($level instanceof Level) {
-			return new Position($data[0], $data[1], $data[2], $level);
+		if(!($level instanceof Level)) {
+			$level = Server::getInstance()->getDefaultLevel();
 		}
-		return self::parseVector($string);
+		return new WeakPosition($data[0], $data[1], $data[2], $level);
 	}
 
 	/**
