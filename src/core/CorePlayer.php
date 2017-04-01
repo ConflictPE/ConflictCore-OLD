@@ -403,6 +403,10 @@ class CorePlayer extends Player {
 		$this->lastMessageTime = floor(microtime(true));
 	}
 
+	public function setLastDamagedTime() {
+		$this->lastDamagedTime = microtime(true);
+	}
+
 	/**
 	 * Add a failed login attempt for the player
 	 */
@@ -676,11 +680,11 @@ class CorePlayer extends Player {
 			}
 		} else {
 			$y = $event->getTo()->getY();
-			if($y <= 0 or $y >= 112) {
+			if($y <= 0 or $y >= 256) {
 				$this->kill();
 			} else {
 				$block = $this->getLevel()->getBlock(new Vector3($this->getFloorX(), $this->getFloorY() - 1, $this->getFloorZ()));
-				if(($this->isSurvival() or $this->isAdventure()) and round($event->getTo()->getY() - $event->getFrom()->getY(), 3) >= 0.375 && $block->getId() === Block::AIR and floor(microtime(true) - $this->lastDamagedTime) >= 5/* and !$block->getId() === Block::LAVA and !$block->getId() === Block::STILL_LAVA and !$block->getId() === Block::WATER and !$block->getId() === Block::STILL_WATER and !$block->getId() === Block::RED_SANDSTONE_SLAB and !$block->getId() === Block::ACTIVATOR_RAIL and !$block->getId() === Block::SLAB*/) {
+				if(($this->isSurvival() or $this->isAdventure()) and round($event->getTo()->getY() - $event->getFrom()->getY(), 3) >= 0.375 && $block->getId() === Block::AIR and floor(microtime(true) - $this->lastDamagedTime) >= 5) {
 					$this->flyChances++;
 				} else {
 					$this->flyChances = 0;
