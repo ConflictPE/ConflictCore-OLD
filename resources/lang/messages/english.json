@@ -37,7 +37,7 @@
   "UNREGISTER_ERROR": "&6- &cUh oh, looks like there was an error unregistering your account.",
   "PASSWORD_CHANGE_SUCCESS": "&6- &aYour password has been changed!",
   "PASSWORD_CHANGE_ERROR": "&6- &cUh oh, looks like there was an error changing your password.",
-  "SERVER_NAME": "&l&1C&ar&ea&6z&9e&5d&fC&7r&6a&cf&dt &6Server&r",
+  "SERVER_NAME": "&l&6C&7PE&r Server&r",
   "KICK_BANNED_MOD": "&cYou have been kicked for using a banned client modification &6({args1})&c.\n&6Please disable your modified client to continue playing.",
   "TESTING_NOT_ENABLED": "&cThis feature is currently only available in testing mode!",
   "SKIN_DUMPED": "&6- &aDumped skin successfully!",
@@ -47,5 +47,5 @@
   "TOGGLE_STAFF_CHAT_WARNING": "§7You will only be able to send messages to the staff chat until you do /staffchat to toggle the chat.§r",
   "ONE_MINUTE_UNTIL_RESTART": "&6- &eServer will restart in &a1 minute&e!",
   "SECONDS_UNTIL_RESTART": "&l&fPrison &r&erestarting in &a{args1} second('s)&e!",
-  "SERVER_RESTART": "&l&6Conflict&7PE &fPrison &r&eis restarting, we will be back in a moment!"
+  "SERVER_RESTART": "&l&6Conflict&7PE &fServer &r&eis restarting, we will be back in a moment!"
 }

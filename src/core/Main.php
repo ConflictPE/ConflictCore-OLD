@@ -99,6 +99,11 @@ class Main extends PluginBase {
 		$this->getServer()->getNetwork()->setName($this->languageManager->translate("SERVER_NAME", "en"));
 		$this->restartTask = new RestartTask($this);
 		$server = $this->getServer();
+		foreach($server->getLevels() as $level) {
+			$level->setTime(6000);
+			$level->stopTime();
+			$this->floatingTextManager->onLevelLoad($level);
+		}
 		$this->getLogger()->info("Components enabled on {$server->getIp()}:{$server->getPort()} with {$server->getMaxPlayers()} slots! (" . round(microtime(true) - $this->loadTime, 3) . "s)!");
 	}
 

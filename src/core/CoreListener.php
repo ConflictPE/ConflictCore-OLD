@@ -172,6 +172,7 @@ class CoreListener implements Listener {
 			}
 		}
 		$this->plugin->getFloatingTextManager()->onJoin($player);
+		$player->teleport($player->getPosition()->add(0.5. 0, 0.5));
 	}
 
 	/**
