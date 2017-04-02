@@ -829,28 +829,34 @@ class CorePlayer extends Player {
 	 * @param PlayerDropItemEvent $event
 	 */
 	public function onDrop(PlayerDropItemEvent $event) {
-		if(!$this->authenticated) $event->setCancelled(true);
+		$event->setCancelled(true);
 	}
 
 	/**
 	 * @param PlayerInteractEvent $event
 	 */
 	public function onInteract(PlayerInteractEvent $event) {
-		if(!$this->authenticated) $event->setCancelled(true);
+		$event->setCancelled(true);
+		if(!$this->authenticated) {
+			$item = $event->getItem();
+			if($item instanceof GUIItem) {
+				$item->handleClick($this, true);
+			}
+		}
 	}
 
 	/**
 	 * @param BlockBreakEvent $event
 	 */
 	public function onBreak(BlockBreakEvent $event) {
-		if(!$this->authenticated) $event->setCancelled(true);
+		$event->setCancelled(true);
 	}
 
 	/**
 	 * @param BlockPlaceEvent $event
 	 */
 	public function onPlace(BlockPlaceEvent $event) {
-		if(!$this->authenticated) $event->setCancelled(true);
+		$event->setCancelled(true);
 	}
 
 	/**
