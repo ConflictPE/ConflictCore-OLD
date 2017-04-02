@@ -22,10 +22,14 @@ use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\level\WeakPosition;
 use pocketmine\math\Vector3;
+use pocketmine\network\protocol\UpdateBlockPacket;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat as TF;
+use pocketmine\utils\TextFormat;
 
 class Utils {
+
+	const PREFIX = TextFormat::BOLD . TextFormat::GOLD . "C" . TextFormat::GRAY . "PE" . TextFormat::RESET . TextFormat::YELLOW . "> " . TextFormat::RESET;
 
 	/**
 	 * Get a vector instance from a string
@@ -139,6 +143,67 @@ class Utils {
 
 		$times = floor((strlen($checkAgainst) - strlen($toCentre)) / 2);
 		return str_repeat(" ", ($times > 0 ? $times : 0)) . $toCentre;
+	}
+
+	/**
+	 * @param $time
+	 *
+	 * @return string
+	 */
+	public static function getTimeString($time) {
+		if($time <= 0) {
+			return "0 seconds";
+		}
+		$sec = floor($time / 20); // Convert to seconds
+		$min = floor($sec / 60);
+		if(($sec % 60) == 0) { // If it is exactly a multiple of 60
+			$timeStr = $min . " minute" . ($min == 1 ? "" : "s");
+		} else {
+			// If more than 1 min but not exactly a minute
+			$secLeft = $sec - ($min * 60);
+			$timeStr = "";
+			if($min > 0) {
+				$timeStr = $min . " minute" . ($min == 1 ? "" : "s") . " ";
+			}
+			$timeStr .= $secLeft . " second" . ($secLeft == 1 ? "" : "s");
+		}
+		trim($timeStr);
+		return $timeStr;
+
+	}
+
+	/**
+	 * @param $uuid
+	 *
+	 * @return null|\pocketmine\Player
+	 */
+	public static function getPlayerByUUID($uuid) {
+		$uuid = str_replace("-", "", strtolower($uuid));
+		foreach(Server::getInstance()->getOnlinePlayers() as $player) {
+			if(str_replace("-", "", strtolower($player->getUniqueId()->toString())) == $uuid) {
+				return $player;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Send a 'ghost' block to a player
+	 *
+	 * @param CorePlayer $player
+	 * @param Vector3 $pos
+	 * @param $id
+	 * @param $damage
+	 */
+	public static function sendBlock(CorePlayer $player, Vector3 $pos, $id, $damage) {
+		$pk = new UpdateBlockPacket();
+		$pk->x = $pos->x;
+		$pk->y = $pos->y;
+		$pk->z = $pos->z;
+		$pk->blockId = $id;
+		$pk->blockData = $damage;
+		$pk->flags = UpdateBlockPacket::FLAG_PRIORITY;
+		$player->dataPacket($pk);
 	}
 
 	/**

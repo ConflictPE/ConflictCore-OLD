@@ -19,6 +19,7 @@
 namespace core;
 
 use core\entity\antihack\KillAuraDetector;
+use core\gui\item\GUIItem;
 use core\language\LanguageManager;
 use core\task\CheckMessageTask;
 use pocketmine\block\Block;
@@ -114,6 +115,9 @@ class CorePlayer extends Player {
 
 	/** @var bool */
 	private $hasHologramIdSession = false;
+
+	private $popups = [];
+	private $tips = [];
 
 	/** Game statuses */
 	const STATE_LOBBY = "state.lobby";
@@ -442,6 +446,36 @@ class CorePlayer extends Player {
 		$this->hasHologramIdSession = $value;
 	}
 
+	public function addPopup($identifier, $message, $duration = 20, $transitionDelay = 10, $priority = 0, $immediate = false) {
+		if(stristr($message, "\n") && $transitionDelay > 0) {
+			$message = explode("\n", $message);
+		}
+		// [Message, Duration, TransitionIteration, TransitionTick, TransitionDelay, Priority]
+		$this->popups[$identifier] = [$message, $duration - 4, 0, 0, $transitionDelay, $priority];
+		if($immediate) {
+			$this->processPopups();
+		}
+	}
+
+	public function addTip($identifier, $message, $duration = 20, $transitionDelay = 10, $priority = 0, $immediate = false) {
+		if(stristr($message, "\n") && $transitionDelay > 0) {
+			$message = explode("\n", $message);
+		}
+		// [Message, Duration, TransitionIteration, TransitionTick, TransitionDelay, Priority]
+		$this->tips[$identifier] = [$message, $duration - 8, 0, 0, $transitionDelay, $priority];
+		if($immediate) {
+			$this->processTips();
+		}
+	}
+
+	public function removePopup($identifier) {
+		unset($this->popups[$identifier]);
+	}
+
+	public function removeTip($identifier) {
+		unset($this->tips[$identifier]);
+	}
+
 	/**
 	 * Increases the amount of times a player has been detected for having kill aura
 	 */
@@ -478,14 +512,14 @@ class CorePlayer extends Player {
 					new FloatTag("", 0)
 				]),
 			]);
-			$entity = Entity::createEntity("KillAuraDetector", $this->getLevel()->getChunk($this->x >> 4, $this->z >> 4), clone $nbt);
+			$entity = Entity::createEntity("KillAuraDetector", $this->getLevel(), clone $nbt);
 			if($entity instanceof KillAuraDetector) {
 				$entity->setTarget($this);
 				$entity->setOffset(new Vector3(-1, 2.5, -1));
 			} else {
 				$entity->kill();
 			}
-			$entity = Entity::createEntity("KillAuraDetector", $this->getLevel()->getChunk($this->x >> 4, $this->z >> 4), clone $nbt);
+			$entity = Entity::createEntity("KillAuraDetector", $this->getLevel(), clone $nbt);
 			if($entity instanceof KillAuraDetector) {
 				$entity->setTarget($this);
 				$entity->setOffset(new Vector3(1, -2.5, 1));
@@ -566,9 +600,10 @@ class CorePlayer extends Player {
 	 * @param $key
 	 * @param array $args
 	 * @param bool $isImportant
+	 * @param bool $center
 	 */
-	public function sendTranslatedMessage($key, array $args = [], $isImportant = false) {
-		$this->sendMessage($this->core->getLanguageManager()->translateForPlayer($this, $key, $args), $isImportant);
+	public function sendTranslatedMessage($key, array $args = [], $isImportant = false, $center = true) {
+		$this->sendMessage($this->core->getLanguageManager()->translateForPlayer($this, $key, $args, $center), $isImportant);
 	}
 
 	/**
@@ -603,15 +638,109 @@ class CorePlayer extends Player {
 		return false;
 	}
 
-	///**
-	// * Ensures players don't actually die
-	// *
-	// * @param bool $forReal
-	// * @return bool
-	// */
-	//public function kill($forReal = false) {
-	//
-	//}
+	public function onUpdate($currentTick) {
+		if(parent::onUpdate($currentTick)) {
+			if(!($currentTick % 4 == 0)) {
+				return true;
+			}
+			$this->processPopups();
+			$this->processTips();
+			return true;
+		}
+		return false;
+	}
+
+	private function processPopups() {
+		if(empty($this->popups)) {
+			return;
+		}
+		// Tick popups
+		$highestPriority = -1;
+		$popup = [];
+		$identifier = 0;
+		foreach($this->popups as $id => $p) {
+			if($p[5] > $highestPriority) {
+				$highestPriority = $p[5];
+				$identifier = $id;
+				$popup = $p;
+			}
+		}
+		if(!empty($popup)) {
+			// get all at this priority
+			if(is_array($popup[0])) {
+				// Iteration is $popup[2]
+				$i = $popup[2];
+				if(!isset($popup[0][$i])) {
+					$i = 0;
+				}
+				// Iteration tick counter is $popup[3]
+				$ticks = $popup[3];
+				if($ticks >= $popup[4]) {
+					$this->popups[$identifier][3] = 0;
+					$this->popups[$identifier][2] = $i + 1;
+				} else {
+					$this->popups[$identifier][3] = $popup[3] + 4;
+				}
+				$this->sendPopup($popup[0][$i]);
+			} else {
+				$this->sendPopup($popup[0]);
+			}
+			$ticksLeft = $popup[1];
+			if($ticksLeft <= 1) {
+				unset($this->popups[$identifier]);
+				return;
+			}
+			if($ticksLeft > 0) {
+				$this->popups[$identifier][1] = $ticksLeft - 4;
+			}
+		}
+	}
+
+	private function processTips() {
+		if(empty($this->tips)) {
+			return;
+		}
+		// Tick popups
+		$highestPriority = -1;
+		$tip = [];
+		$identifier = 0;
+		foreach($this->tips as $id => $t) {
+			if($t[5] > $highestPriority) {
+				$highestPriority = $t[5];
+				$identifier = $id;
+				$tip = $t;
+			}
+		}
+		if(!empty($tip)) {
+			// get all at this priority
+			if(is_array($tip[0])) {
+				// Iteration is $popup[2]
+				$i = $tip[2];
+				if(!isset($tip[0][$i])) {
+					$i = 0;
+				}
+				// Iteration tick counter is $popup[3]
+				$ticks = $tip[3];
+				if($ticks >= $tip[4]) {
+					$this->tips[$identifier][3] = 0;
+					$this->tips[$identifier][2] = $i + 1;
+				} else {
+					$this->tips[$identifier][3] = $tip[3] + 4;
+				}
+				$this->sendTip($tip[0][$i]);
+			} else {
+				$this->sendTip($tip[0]);
+			}
+			$ticksLeft = $tip[1];
+			if($ticksLeft <= 1) {
+				unset($this->tips[$identifier]);
+				return;
+			}
+			if($ticksLeft > 0) {
+				$this->tips[$identifier][1] = $ticksLeft - 4;
+			}
+		}
+	}
 
 	/**
 	 * @param Player $player

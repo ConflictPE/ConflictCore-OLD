@@ -76,12 +76,12 @@ class LoginRequest extends MySQLAuthRequest {
 						$player->setLanguageAbbreviation((string)$result[1]["lang"]);
 						$player->setTimePlayed((int)$result[1]["timeplayed"]);
 						$player->addCoins((int)$result[1]["coins"]);
-						$player->sendTranslatedMessage("WELCOME", [], true);
+						$player->sendTranslatedMessage("WELCOME", [$player->getName()], true);
 						$player->sendTranslatedMessage("LOGIN_PROMPT", [], true);
 						$server->getLogger()->debug("Successfully completed LoginRequest for auth database! User: {$this->name}");
 						return;
 					case self::NO_DATA:
-						$player->sendTranslatedMessage("WELCOME", [], true);
+						$player->sendTranslatedMessage("WELCOME", [$player->getName()], true);
 						$player->sendTranslatedMessage("REGISTER_PROMPT", [], true);
 						$server->getLogger()->debug("Failed to complete LoginRequest for auth database due the username not being registered! User: {$this->name}");
 						return;

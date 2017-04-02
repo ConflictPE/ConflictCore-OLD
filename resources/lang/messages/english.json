@@ -1,5 +1,5 @@
 {
-  "WELCOME": "&l&6»&7----------*+*----------&6«&r \n&r        &l&6Conflict&7PE &fPrison&r         \n&3      Welcome back Prisoner!&r                \n&l&6»&7----------*+*----------&6«&r",
+  "WELCOME": "&l&6»&7-----------*+*-----------&6«&r \n&r&l&6Conflict&7PE &fHub&r\n&3Welcome back, &b{args1}&3!&r\n&l&6»&7-----------*+*-----------&6«",
   "REGISTER_PROMPT": "&l&a|&7||&r &6Type a password directly into chat to register.",
   "LOGIN_PROMPT": "&e> &6Type your password directly into chat to login.",
   "CONFIRM_PASSWORD_PROMPT": "&l&a||&7|&r &ePlease type your password into chat again to confirm.",
@@ -15,14 +15,17 @@
   "MUST_AUTHENTICATE_FIRST": "&6- &cPlease login or register first!",
   "ALREADY_AUTHENTICATED": "&c- &6You're already logged in!",
   "MUST_BE_PLAYER_FOR_COMMAND": "&6- &cYou must be a player to execute this command!",
+
   "ALREADY_IN_PARTY": "&6- &cYou're already in a party!",
   "NEW_PARTY_REQUEST": "&c- &6Party request from &a{args1} &6will expire in 60 seconds, type &a/party {args1} &6to accept!",
   "PARTY_SENT_REQUEST": "&aParty request sent to &6args1 &awill expire in 60 seconds.",
   "PARTY_ALREADY_HAS_REQUEST": "&6{args1} &calready has a party request from you!",
   "USER_ALREADY_IN_PARTY": "&6{args1} &cis already in a party!",
+
   "USER_NOT_ONLINE": "&6- &c{args1} is not online!",
   "COMMAND_BANNED": "&6- &cYou do not have permission to use this command",
   "COMMAND_USAGE": "&6- &cUsage: {args1}",
+
   "CANNOT_CHAT_WHILE_MUTED": "&6- &cYou cannot chat while your chat is muted!",
   "BLOCKED_MESSAGE": "&6- &cMessage blocked by chat filter.",
   "BLOCKED_MESSAGE_PROFANE": "&6- &cMessage blocked by chat filter. &6Please keep the chat clean.",
@@ -30,21 +33,34 @@
   "PASSWORD_IN_CHAT": "&6- &cDon't share your password or your account might get hacked!",
   "CHAT_COOLDOWN": "&6- &cYou must wait three seconds before sending another message.",
   "MESSAGES_TOO_SIMILAR": "&6- &cYour messages are too similar, please don't spam the chat.",
+
   "ALREADY_ONLINE": "&cAlready logged in!",
   "LOGIN_FROM_ANOTHER_LOCATION": "&6Logged in from another location",
   "MAX_CONNECTIONS": "&6The maximum amount of players allowed from one IP are already connected!",
+
   "UNREGISTER_SUCCESS": "&aYour account has successfully been deleted! &ePlease register to continue playing.",
   "UNREGISTER_ERROR": "&6- &cUh oh, looks like there was an error unregistering your account.",
   "PASSWORD_CHANGE_SUCCESS": "&6- &aYour password has been changed!",
   "PASSWORD_CHANGE_ERROR": "&6- &cUh oh, looks like there was an error changing your password.",
-  "SERVER_NAME": "&l&6C&7PE&r Server&r",
-  "KICK_BANNED_MOD": "&cYou have been kicked for using a banned client modification &6({args1})&c.\n&6Please disable your modified client to continue playing.",
+
+  "SERVER_NAME": "&l&6C&7PE&r Server",
+
+  "KICK_BANNED_MOD": "&cYou have been kicked for using a banned client modification &6({args1})&c.&r\n&6Please disable your modified client to continue playing.",
+
   "TESTING_NOT_ENABLED": "&cThis feature is currently only available in testing mode!",
+
   "SKIN_DUMPED": "&6- &aDumped skin successfully!",
+
   "TOGGLED_PLAYERS": "§6- §aYou have successfully toggled player visibility!",
-  "TOGGLE_PLAYERS_WARNING": "§7You won't able to see players in pvp zones until you do /toggleplayers to toggle player visibility.§r",
-  "TOGGLE_STAFF_CHAT": "§6- §aYou have successfully {args1} the staff chat.§r",
-  "TOGGLE_STAFF_CHAT_WARNING": "§7You will only be able to send messages to the staff chat until you do /staffchat to toggle the chat.§r",
+  "TOGGLE_PLAYERS_WARNING": "§7You won't able to see players in pvp zones until you do /toggleplayers to toggle player visibility.",
+
+  "TOGGLE_STAFF_CHAT": "§6- §aYou have successfully {args1} the staff chat.",
+  "TOGGLE_STAFF_CHAT_WARNING": "§7You will only be able to send messages to the staff chat until you do /staffchat to toggle the chat.",
+
+  "GUI_ITEM_COOLDOWN": "&ePlease wait {args1} before using that again!",
+  "GUI_ITEM_PREVIEW": "{args1}&r\n",
+  "GUI_ITEM_TAP_GROUND": "&o&7Tap the item on the ground to use.&r",
+
   "ONE_MINUTE_UNTIL_RESTART": "&6- &eServer will restart in &a1 minute&e!",
   "SECONDS_UNTIL_RESTART": "&l&fPrison &r&erestarting in &a{args1} second('s)&e!",
   "SERVER_RESTART": "&l&6Conflict&7PE &fServer &r&eis restarting, we will be back in a moment!"

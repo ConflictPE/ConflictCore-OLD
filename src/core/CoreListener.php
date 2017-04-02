@@ -19,6 +19,8 @@
 namespace core;
 
 use core\entity\text\FloatingText;
+use core\gui\ChestGUI;
+use core\gui\item\GUIItem;
 use core\language\LanguageManager;
 use core\task\KickTask;
 use pocketmine\entity\Entity;
@@ -33,12 +35,15 @@ use pocketmine\event\player\PlayerCommandPreprocessEvent;
 use pocketmine\event\player\PlayerCreationEvent;
 use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\event\player\PlayerInteractEvent;
+use pocketmine\event\player\PlayerItemHeldEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerKickEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\player\PlayerPreLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\item\Item;
+use pocketmine\network\protocol\ContainerSetSlotPacket;
 use pocketmine\network\protocol\InteractPacket;
 use pocketmine\utils\TextFormat;
 
@@ -300,6 +305,26 @@ class CoreListener implements Listener {
 	}
 
 	/**
+	 * @param PlayerItemHeldEvent $event
+	 *
+	 * @priority HIGHEST
+	 * @ignoreCancelled true
+	 */
+	public function onItemHeld(PlayerItemHeldEvent $event) {
+		/** @var CorePlayer $player */
+		$player = $event->getPlayer();
+		$item = $event->getItem();
+		if($item instanceof GUIItem) {
+			$item->handleClick($event->getPlayer());
+		} else {
+			$orig = Item::get($item->getId(), $item->getDamage());
+			if(!($orig instanceof Item) or $item->getName() != $orig->getName()) {
+				$player->addPopup("ITEM_HELD", $item->getName(), 30, 0, 10);
+			}
+		}
+	}
+
+	/**
 	 * Handle entity level change
 	 *
 	 * @param EntityLevelChangeEvent $event
@@ -326,6 +351,16 @@ class CoreListener implements Listener {
 				if(isset($text[$player->getLevel()->getName()][$pk->target])) {
 					$player->sendMessage(TextFormat::GOLD . "- " . TextFormat::GREEN . "Hologram ID: " . TextFormat::GRAY . $pk->target);
 					$player->setHologramIdSession(false);
+				}
+			}
+		} elseif($pk instanceof ContainerSetSlotPacket) {
+			/** @var CorePlayer $player */
+			$player = $event->getPlayer();
+			$inv = $player->getWindowById($pk->windowid);
+			if($inv instanceof ChestGUI and $inv->getItem($pk->slot) instanceof GUIItem) {
+				if(!$inv->onSelect($pk->slot, $inv->getItem($pk->slot), $player)) {
+					$event->setCancelled();
+					$inv->sendContents($player);
 				}
 			}
 		}
