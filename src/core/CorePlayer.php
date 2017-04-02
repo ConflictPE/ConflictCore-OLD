@@ -837,7 +837,7 @@ class CorePlayer extends Player {
 	 */
 	public function onInteract(PlayerInteractEvent $event) {
 		$event->setCancelled(true);
-		if(!$this->authenticated) {
+		if($this->authenticated) {
 			$item = $event->getItem();
 			if($item instanceof GUIItem) {
 				$item->handleClick($this, true);

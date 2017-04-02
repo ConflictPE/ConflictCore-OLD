@@ -69,7 +69,7 @@ abstract class GUIItem extends Item {
 				$this->onClick($player);
 			}
 		} else {
-			$player->sendPopup($lang->translateForPlayer($player, "GUI_ITEM_COOLDOWN"));
+			$player->sendPopup($lang->translateForPlayer($player, "GUI_ITEM_COOLDOWN", [Utils::getTimeString($this->getCooldown() - ($ticks - $this->getCooldownTick($player)))]));
 		}
 		$this->lastClick = $ticks;
 	}
