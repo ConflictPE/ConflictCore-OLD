@@ -62,18 +62,18 @@ abstract class GUIItem extends Item {
 		$this->tickCooldowns();
 		$ticks = $player->getServer()->getTick();
 		$lang = LanguageManager::getInstance();
-		if($ticks - $this->getCooldownTick($player) > $this->getCooldown()) {
-			if($this->clickCount == 0 and !$force) {
-				$player->sendPopup(ChatUtil::centerPrecise($lang->translateForPlayer($player, "GUI_ITEM_PREVIEW", [$this->getPreviewName($player)]) . $lang->translateForPlayer($player, "GUI_ITEM_TAP_GROUND"), null));
-				$this->clickCount++;
-			} else {
+		if($this->clickCount == 0 and !$force) {
+			$player->sendPopup(ChatUtil::centerPrecise($lang->translateForPlayer($player, "GUI_ITEM_PREVIEW", [$this->getPreviewName($player)]) . $lang->translateForPlayer($player, "GUI_ITEM_TAP_GROUND"), null));
+			$this->clickCount++;
+		} else {
+			if($ticks - $this->getCooldownTick($player) > $this->getCooldown()) {
 				$this->clickCount = 0;
 				$this->lastClick = 0;
 				self::$cooldownTick[$player->getUniqueId()->toString()] = $ticks;
 				$this->onClick($player);
+			} else {
+				$player->sendPopup($lang->translateForPlayer($player, "GUI_ITEM_COOLDOWN", [Utils::getTimeString($this->getCooldown() - ($ticks - $this->getCooldownTick($player)))]));
 			}
-		} else {
-			$player->sendPopup($lang->translateForPlayer($player, "GUI_ITEM_COOLDOWN", [Utils::getTimeString($this->getCooldown() - ($ticks - $this->getCooldownTick($player)))]));
 		}
 		$this->lastClick = $ticks;
 	}
