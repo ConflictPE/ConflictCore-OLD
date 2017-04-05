@@ -19,6 +19,7 @@
 namespace core;
 
 use core\entity\antihack\KillAuraDetector;
+use core\gui\ChestGUI;
 use core\gui\item\GUIItem;
 use core\language\LanguageManager;
 use core\task\CheckMessageTask;
@@ -115,6 +116,9 @@ class CorePlayer extends Player {
 
 	/** @var bool */
 	private $hasHologramIdSession = false;
+
+	/** @var array */
+	private $guis = [];
 
 	private $popups = [];
 	private $tips = [];
@@ -271,6 +275,27 @@ class CorePlayer extends Player {
 	 */
 	public function getKillAuraTriggers() {
 		return $this->killAuraTriggers;
+	}
+
+	/**
+	 * @param string $type
+	 *
+	 * @return ChestGUI|null
+	 */
+	public function getGuiContainer(string $type = "undefined") {
+		if($this->hasGuiContainer($type)) {
+			return $this->guis[$type];
+		}
+		return null;
+	}
+
+	/**
+	 * @param string $type
+	 *
+	 * @return bool
+	 */
+	public function hasGuiContainer(string $type = "undefined") {
+		return isset($this->guis[$type]) and $this->guis[$type] instanceof ChestGUI;
 	}
 
 	/**
@@ -444,6 +469,24 @@ class CorePlayer extends Player {
 	 */
 	public function setHologramIdSession($value = true) {
 		$this->hasHologramIdSession = $value;
+	}
+
+	/**
+	 * @param ChestGUI $gui
+	 * @param string $type
+	 * @param bool $overwrite
+	 *
+	 * @return bool
+	 *
+	 * @throws \ErrorException
+	 */
+	public function addGuiContainer(ChestGUI $gui, string $type = "undefined", $overwrite = false) {
+		if(!$this->hasGuiContainer($type) or $overwrite) {
+			$this->guis[$type] = $gui;
+			return true;
+		}
+
+		throw new \ErrorException("Attempted to overwrite existing GUI container!");
 	}
 
 	public function addPopup($identifier, $message, $duration = 20, $transitionDelay = 10, $priority = 0, $immediate = false) {

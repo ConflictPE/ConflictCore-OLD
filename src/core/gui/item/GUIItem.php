@@ -24,6 +24,11 @@ use core\gui\ChestGUI;
 use core\language\LanguageManager;
 use core\Utils;
 use pocketmine\item\Item;
+use pocketmine\nbt\NBT;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\ListTag;
+use pocketmine\nbt\tag\ShortTag;
+use pocketmine\nbt\tag\StringTag;
 
 abstract class GUIItem extends Item {
 
@@ -97,6 +102,24 @@ abstract class GUIItem extends Item {
 				unset(self::$cooldownTick[$plId]);
 			}
 		}
+	}
+
+	public function giveEnchantmentEffect() {
+		$tag = $this->getNamedTag();
+		$tag->ench = new ListTag("ench", [
+			0 => new CompoundTag("", [
+				"id" => new ShortTag("id", -1),
+				"lvl" => new ShortTag("lvl", 1)
+			])
+		]);
+		$tag->ench->setTagType(NBT::TAG_Compound);
+		$this->setNamedTag($tag);
+	}
+
+	public function removeEnchantmentEffect() {
+		$tag = $this->getNamedTag();
+		unset($tag->ench);
+		$this->setNamedTag($tag);
 	}
 
 }
