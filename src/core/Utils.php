@@ -18,18 +18,111 @@
 
 namespace core;
 
+use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\level\WeakPosition;
 use pocketmine\math\Vector3;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\StringTag;
+use pocketmine\network\protocol\ClientboundMapItemDataPacket;
 use pocketmine\network\protocol\UpdateBlockPacket;
 use pocketmine\Server;
-use pocketmine\utils\TextFormat as TF;
+use pocketmine\utils\Color;
 use pocketmine\utils\TextFormat;
+use pocketmine\utils\TextFormat as TF;
 
 class Utils {
 
+	/** @var Color[] */
+	public static $baseMapColors = [];
+
+	/** @var Color[] */
+	public static $mapColors = [];
+
 	const PREFIX = TextFormat::BOLD . TextFormat::GOLD . "C" . TextFormat::GRAY . "PE" . TextFormat::RESET . TextFormat::YELLOW . "> " . TextFormat::RESET;
+
+	public static function init() {
+		self::$baseMapColors = [
+			new Color(0, 0, 0, 0),
+			new Color(127, 178, 56),
+			new Color(247, 233, 163),
+			new Color(167, 167, 167),
+			new Color(255, 0, 0),
+			new Color(160, 160, 255),
+			new Color(167, 167, 167),
+			new Color(0, 124, 0),
+			new Color(255, 255, 255),
+			new Color(164, 168, 184),
+			new Color(183, 106, 47),
+			new Color(112, 112, 112),
+			new Color(64, 64, 255),
+			new Color(104, 83, 50),
+			new Color(255, 252, 245),
+			new Color(216, 127, 51),
+			new Color(178, 76, 216),
+			new Color(102, 153, 216),
+			new Color(229, 229, 51),
+			new Color(127, 204, 25),
+			new Color(242, 127, 165),
+			new Color(76, 76, 76),
+			new Color(153, 153, 153),
+			new Color(76, 127, 153),
+			new Color(127, 63, 178),
+			new Color(51, 76, 178),
+			new Color(102, 76, 51),
+			new Color(102, 127, 51),
+			new Color(153, 51, 51),
+			new Color(25, 25, 25),
+			new Color(250, 238, 77),
+			new Color(92, 219, 213),
+			new Color(74, 128, 255),
+			new Color(0, 217, 58),
+			new Color(21, 20, 31),
+			new Color(112, 2, 0),
+			new Color(126, 84, 48)
+		];
+
+		for ($i = 0; $i < count(self::$baseMapColors); ++$i) {
+			/** @var Color $bc */
+			$bc = self::$baseMapColors[$i];
+			self::$mapColors[$i * 4 + 0] = new Color((int)($bc->getR() * 180.0 / 255.0 + 0.5), (int)($bc->getG() * 180.0 / 255.0 + 0.5), (int)($bc->getB() * 180.0 / 255.0 + 0.5), $bc->getA());
+			self::$mapColors[$i * 4 + 1] = new Color((int)($bc->getR() * 220.0 / 255.0 + 0.5), (int)($bc->getG() * 220.0 / 255.0 + 0.5), (int)($bc->getB() * 220.0 / 255.0 + 0.5), $bc->getA());
+			self::$mapColors[$i * 4 + 2] = $bc;
+			self::$mapColors[$i * 4 + 3] = new Color((int)($bc->getR() * 135.0 / 255.0 + 0.5), (int)($bc->getG() * 135.0 / 255.0 + 0.5), (int)($bc->getB() * 135.0 / 255.0 + 0.5), $bc->getA());
+		}
+	}
+
+	public static function getClosestMapColor(Color $color) {
+		if ($color->getA() > 128) return self::$baseMapColors[0];
+		$index = 0;
+		$best = -1;
+		for ($i = 4; $i < count(self::$mapColors); $i++) {
+			$distance = self::getColorDistance($color, self::$mapColors[$i]);
+			if ($distance < $best || $best == -1) {
+				$best = $distance;
+				$index = $i;
+			}
+		}
+		return self::$mapColors[$index];
+	}
+
+	/**
+	 * Returns the logical distance between 2 colors, respecting weight
+	 * @param Color $c1
+	 * @param Color $c2
+	 * @return int
+	 */
+	public static function getColorDistance(Color $c1, Color $c2) {
+		$rmean = ($c1->getR() + $c2->getR()) / 2.0;
+		$r = $c1->getR() - $c2->getR();
+		$g = $c1->getG() - $c2->getG();
+		$b = $c1->getB() - $c2->getB();
+		$weightR = 2 + $rmean / 256;
+		$weightG = 4;
+		$weightB = 2 + (255 - $rmean) / 256;
+		return $weightR * $r * $r + $weightG * $g * $g + $weightB * $b * $b;
+	}
 
 	/**
 	 * Get a vector instance from a string
@@ -204,6 +297,100 @@ class Utils {
 		$pk->blockData = $damage;
 		$pk->flags = UpdateBlockPacket::FLAG_PRIORITY;
 		$player->dataPacket($pk);
+	}
+
+	/**
+	 * @param $path
+	 *
+	 * @return array
+	 * @throws \ErrorException
+	 */
+	public static function getColorDataFromImage($path) {
+		$colors = [];
+		$image = @imagecreatefrompng($path);
+		if($image !== false) {
+			$x = imagesx($image);
+			$y = imagesy($image);
+			if($x <= 512 and $y <= 512) {
+				if($x === $y) {
+					if($x % 128 == 0 and $y % 128 == 0) {
+						$level = $x / 128;
+						var_dump("level: " . $level);
+						switch($level) {
+							case 1:
+								$scale = 2;
+								break;
+							case 2:
+								$scale = 4;
+								break;
+							case 3:
+								$scale = 8;
+								break;
+							case 4:
+								$scale = 16;
+								break;
+							default:
+								$scale = 1;
+						}
+						var_dump("scale: " . $scale);
+						$width = 128 * $level;
+						$height = 128 * $level;
+						for($y = 0; $y < $height; ++$y) {
+							for($x = 0; $x < $width; ++$x) {
+								$color = imagecolorsforindex($image, imagecolorat($image, $x, $y));
+								$colors[$y][$x] = Utils::getClosestMapColor(new Color($color['red'], $color['green'], $color['blue'], $color['alpha']));
+							}
+						}
+					} else {
+						throw new \ErrorException("Image size must be the modulus of 128!");
+					}
+				} else {
+					throw new \ErrorException("Image must be square!");
+				}
+			} else {
+				throw new \ErrorException("Image size must be no more than 512x512 pixels!");
+			}
+		} else {
+			throw new \ErrorException("Couldn't load image from {$path}!");
+		}
+		return [$colors, $width, $height, $scale];
+	}
+
+	/**
+	 * @param CorePlayer $player
+	 * @param Color[][] $colors
+	 * @param int $id
+	 * @param int $scale
+	 * @param array $decorations
+	 * @param int $width
+	 * @param int $height
+	 */
+	public static function sendMapToPlayer(CorePlayer $player, array $colors, $id = 1, $scale = 1, $decorations = [], $width = 128, $height = 128) {
+		$pk = new ClientboundMapItemDataPacket();
+		$pk->mapId = $id;
+		$pk->type = ClientboundMapItemDataPacket::BITFLAG_TEXTURE_UPDATE;
+		$pk->eids = [];
+		$pk->scale = $scale;
+		$pk->decorations = $decorations;
+		$pk->width = $width;
+		$pk->height = $height;
+		$pk->xOffset = 0;
+		$pk->yOffset = 0;
+		$pk->colors = $colors;
+		$player->dataPacket($pk);
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @return Item
+	 */
+	public static function getMap(int $id) {
+		$item = Item::get(Item::FILLED_MAP);
+		$item->setNamedTag(new CompoundTag("", [
+			"map_uuid" => new StringTag("map_uuid", (string) $id),
+		]));
+		return $item;
 	}
 
 	/**

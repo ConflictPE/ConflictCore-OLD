@@ -77,6 +77,7 @@ class Main extends PluginBase {
 	public function onLoad() {
 		$this->loadTime = microtime(true);
 		self::$instance = $this;
+		Utils::init();
 		$this->debug("Loading configs...");
 		$this->loadConfigs();
 	}
