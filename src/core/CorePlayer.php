@@ -19,10 +19,9 @@
 namespace core;
 
 use core\entity\antihack\KillAuraDetector;
-use core\gui\ChestGUI;
+use core\gui\container\ContainerGUI;
 use core\gui\item\GUIItem;
 use core\language\LanguageManager;
-use core\task\CheckMessageTask;
 use pocketmine\block\Block;
 use pocketmine\entity\Entity;
 use pocketmine\event\block\BlockBreakEvent;
@@ -32,7 +31,6 @@ use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerMoveEvent;
-use pocketmine\inventory\PlayerInventory;
 use pocketmine\item\Item;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
@@ -280,7 +278,7 @@ class CorePlayer extends Player {
 	/**
 	 * @param string $type
 	 *
-	 * @return ChestGUI|null
+	 * @return ContainerGUI|null
 	 */
 	public function getGuiContainer(string $type = "undefined") {
 		if($this->hasGuiContainer($type)) {
@@ -295,7 +293,7 @@ class CorePlayer extends Player {
 	 * @return bool
 	 */
 	public function hasGuiContainer(string $type = "undefined") {
-		return isset($this->guis[$type]) and $this->guis[$type] instanceof ChestGUI;
+		return isset($this->guis[$type]) and $this->guis[$type] instanceof ContainerGUI;
 	}
 
 	/**
@@ -472,15 +470,14 @@ class CorePlayer extends Player {
 	}
 
 	/**
-	 * @param ChestGUI $gui
+	 * @param ContainerGUI $gui
 	 * @param string $type
 	 * @param bool $overwrite
 	 *
 	 * @return bool
-	 *
 	 * @throws \ErrorException
 	 */
-	public function addGuiContainer(ChestGUI $gui, string $type = "undefined", $overwrite = false) {
+	public function addGuiContainer(ContainerGUI $gui, string $type = "undefined", $overwrite = false) {
 		if(!$this->hasGuiContainer($type) or $overwrite) {
 			$this->guis[$type] = $gui;
 			return true;

@@ -20,7 +20,7 @@ namespace core\gui\item;
 
 use core\ChatUtil;
 use core\CorePlayer;
-use core\gui\ChestGUI;
+use core\gui\container\ContainerGUI;
 use core\language\LanguageManager;
 use core\Utils;
 use pocketmine\item\Item;
@@ -28,7 +28,6 @@ use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\ShortTag;
-use pocketmine\nbt\tag\StringTag;
 
 abstract class GUIItem extends Item {
 
@@ -39,16 +38,16 @@ abstract class GUIItem extends Item {
 	protected $clickCount = 0;
 	protected $lastClick = 0;
 
-	/** @var ChestGUI */
+	/** @var ContainerGUI */
 	private $parent;
 
 	/**
 	 * GUIItem constructor
 	 *
 	 * @param Item $item
-	 * @param ChestGUI $parent
+	 * @param ContainerGUI|null $parent
 	 */
-	public function __construct(Item $item, ChestGUI $parent = null) {
+	public function __construct(Item $item, ContainerGUI $parent = null) {
 		parent::__construct($item->getId(), $item->getDamage(), $item->getCount(), $item->getName());
 		$this->parent = $parent;
 	}

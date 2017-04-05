@@ -18,8 +18,7 @@
 
 namespace core;
 
-use core\entity\text\FloatingText;
-use core\gui\ChestGUI;
+use core\gui\container\ContainerGUI;
 use core\gui\item\GUIItem;
 use core\language\LanguageManager;
 use core\task\KickTask;
@@ -357,7 +356,7 @@ class CoreListener implements Listener {
 			/** @var CorePlayer $player */
 			$player = $event->getPlayer();
 			$inv = $player->getWindowById($pk->windowid);
-			if($inv instanceof ChestGUI and $inv->getItem($pk->slot) instanceof GUIItem) {
+			if($inv instanceof ContainerGUI and $inv->getItem($pk->slot) instanceof GUIItem) {
 				if(!$inv->onSelect($pk->slot, $inv->getItem($pk->slot), $player)) {
 					$event->setCancelled();
 					$inv->sendContents($player);

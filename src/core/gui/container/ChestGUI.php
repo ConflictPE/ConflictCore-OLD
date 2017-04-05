@@ -16,7 +16,7 @@
  *
  */
 
-namespace core\gui;
+namespace core\gui\container;
 
 use core\CorePlayer;
 use core\gui\item\GUIItem;
@@ -32,7 +32,7 @@ use pocketmine\Player;
 use pocketmine\tile\Chest;
 use pocketmine\tile\Tile;
 
-abstract class ChestGUI extends ChestInventory {
+abstract class ChestGUI extends ChestInventory implements ContainerGUI {
 
 	/** @var null|Chest */
 	private $fakeChest = null;
