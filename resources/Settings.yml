@@ -12,22 +12,23 @@ settings:
   servers:
     factions: fac.conflictpe.net
     prison: psn.conflictpe.net
+  # Network sync information
+  network:
+    # Should we enable network sync?
+    # The server will still submit data but it won't read any
+    # ** Not implemented yet! **
+    enable: true
+    # Server type/node
+    # ** Do not input any value here without checking with database and/or other staff first or the server won't sync properly **
+    node: "Hub"
+    # Server number/id
+    # ** Do not input any value here without checking with database and/or other staff first or the server won't sync properly **
+    id: 1
+    # Time in ticks in which the server should sync with the database
+    sync-interval: 20
   database:
-    auth:
-      host: "172.106.17.114"
-      user: "12"
-      password: "0d5b45c4ee"
-      name: "12"
-      port: 3306
-    bans:
-      host: "172.106.17.114"
-      user: "12"
-      password: "0d5b45c4ee"
-      name: "12"
-      port: 3306
-    ranks:
-      host: "172.106.17.114"
-      user: "12"
-      password: "0d5b45c4ee"
-      name: "12"
-      port: 3306
+    host: "localhost"
+    user: "root"
+    password: "root"
+    name: "crazedcraft"
+    port: 3306

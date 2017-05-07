@@ -20,10 +20,14 @@ namespace core\gui\item;
 
 use core\ChatUtil;
 use core\CorePlayer;
-use core\gui\ChestGUI;
+use core\gui\container\ContainerGUI;
 use core\language\LanguageManager;
 use core\Utils;
 use pocketmine\item\Item;
+use pocketmine\nbt\NBT;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\ListTag;
+use pocketmine\nbt\tag\ShortTag;
 
 abstract class GUIItem extends Item {
 
@@ -34,16 +38,16 @@ abstract class GUIItem extends Item {
 	protected $clickCount = 0;
 	protected $lastClick = 0;
 
-	/** @var ChestGUI */
+	/** @var ContainerGUI */
 	private $parent;
 
 	/**
 	 * GUIItem constructor
 	 *
 	 * @param Item $item
-	 * @param ChestGUI $parent
+	 * @param ContainerGUI|null $parent
 	 */
-	public function __construct(Item $item, ChestGUI $parent = null) {
+	public function __construct(Item $item, ContainerGUI $parent = null) {
 		parent::__construct($item->getId(), $item->getDamage(), $item->getCount(), $item->getName());
 		$this->parent = $parent;
 	}
@@ -58,18 +62,18 @@ abstract class GUIItem extends Item {
 		$this->tickCooldowns();
 		$ticks = $player->getServer()->getTick();
 		$lang = LanguageManager::getInstance();
-		if($ticks - $this->getCooldownTick($player) > $this->getCooldown()) {
-			if($this->clickCount == 0 and !$force) {
-				$player->sendPopup(ChatUtil::centerPrecise($lang->translateForPlayer($player, "GUI_ITEM_PREVIEW", [$this->getPreviewName($player)]) . $lang->translateForPlayer($player, "GUI_ITEM_TAP_GROUND"), null));
-				$this->clickCount++;
-			} else {
+		if($this->clickCount == 0 and !$force) {
+			$player->sendPopup(ChatUtil::centerPrecise($lang->translateForPlayer($player, "GUI_ITEM_PREVIEW", [$this->getPreviewName($player)]) . $lang->translateForPlayer($player, "GUI_ITEM_TAP_GROUND"), null));
+			$this->clickCount++;
+		} else {
+			if($ticks - $this->getCooldownTick($player) > $this->getCooldown()) {
 				$this->clickCount = 0;
 				$this->lastClick = 0;
 				self::$cooldownTick[$player->getUniqueId()->toString()] = $ticks;
 				$this->onClick($player);
+			} else {
+				$player->sendPopup($lang->translateForPlayer($player, "GUI_ITEM_COOLDOWN", [Utils::getTimeString($this->getCooldown() - ($ticks - $this->getCooldownTick($player)))]));
 			}
-		} else {
-			$player->sendPopup($lang->translateForPlayer($player, "GUI_ITEM_COOLDOWN", [Utils::getTimeString($this->getCooldown() - ($ticks - $this->getCooldownTick($player)))]));
 		}
 		$this->lastClick = $ticks;
 	}
@@ -97,6 +101,24 @@ abstract class GUIItem extends Item {
 				unset(self::$cooldownTick[$plId]);
 			}
 		}
+	}
+
+	public function giveEnchantmentEffect() {
+		$tag = $this->getNamedTag();
+		$tag->ench = new ListTag("ench", [
+			0 => new CompoundTag("", [
+				"id" => new ShortTag("id", -1),
+				"lvl" => new ShortTag("lvl", 1)
+			])
+		]);
+		$tag->ench->setTagType(NBT::TAG_Compound);
+		$this->setNamedTag($tag);
+	}
+
+	public function removeEnchantmentEffect() {
+		$tag = $this->getNamedTag();
+		unset($tag->ench);
+		$this->setNamedTag($tag);
 	}
 
 }

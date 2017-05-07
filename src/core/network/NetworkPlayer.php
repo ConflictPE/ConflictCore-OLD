@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ConflictCore – Database.php
+ * ConflictCore – NetworkPlayer.php
  *
  * Copyright (C) 2017 Jack Noordhuis
  *
@@ -12,14 +12,26 @@
  *
  * @author JackNoordhuis
  *
- * Created on 29/01/2017 at 4:46 PM
+ * Created on 7/5/2017 at 1:56 PM
  *
  */
 
-namespace core\database;
+namespace core\network;
 
-interface Database {
+/**
+ * Class to represent a player that is online on the network
+ */
+class NetworkPlayer {
 
-	public function close();
+	/** @var string */
+	private $name;
+
+	public function __construct(string $name) {
+		$this->name = $name;
+	}
+
+	public function getName() : string {
+		return $this->name;
+	}
 
 }

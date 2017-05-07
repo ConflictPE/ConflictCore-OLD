@@ -31,7 +31,7 @@ use core\database\mysql\MySQLDatabase;
  * MySQL implementation of the Auth database
  */
 class MySQLAuthDatabase extends MySQLDatabase implements AuthDatabase {
-	
+
 	/** @var UpdateRequestScheduler */
 	protected $updateScheduler;
 

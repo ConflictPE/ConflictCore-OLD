@@ -29,6 +29,9 @@ abstract class MySQLDatabase implements Database {
 	/** @var Main */
 	private $plugin;
 
+	/** @var bool */
+	private $closed = false;
+
 	/**
 	 * MySQLDatabase constructor
 	 *
@@ -40,7 +43,7 @@ abstract class MySQLDatabase implements Database {
 		$this->credentials = $credentials;
 		$this->init();
 	}
-	
+
 	protected abstract function init();
 
 	/**
@@ -49,12 +52,24 @@ abstract class MySQLDatabase implements Database {
 	public function getPlugin() {
 		return $this->plugin;
 	}
-	
+
 	/**
 	 * @return MySQLCredentials
 	 */
 	public function getCredentials() {
 		return $this->credentials;
+	}
+
+	/**
+	 * Dump all data safely to prevent memory leaks and shutdown hold ups
+	 */
+	public function close() {
+		if(!$this->closed) {
+			$this->closed = true;
+			unset($this->credentials, $this->plugin);
+			return true;
+		}
+		return false;
 	}
 
 }

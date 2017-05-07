@@ -18,10 +18,12 @@
 
 namespace core\database\auth;
 
+use core\database\Database;
+
 /**
  * All classes that implement an auth database MUST implement this class
  */
-interface AuthDatabase {
+interface AuthDatabase extends Database {
 
 	public function register($name, $password, $email);
 

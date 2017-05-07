@@ -58,7 +58,7 @@ class MySQLCredentials {
 	 * @return \mysqli
 	 */
 	public function getMysqli() {
-		return new \mysqli($this->host, $this->user, $this->password, $this->name, $this->port/*, "/Applications/MAMP/tmp/mysql/mysql.sock"*/);
+		return new \mysqli($this->host, $this->user, $this->password, $this->name, $this->port, "/Applications/MAMP/tmp/mysql/mysql.sock");
 	}
 
 }
