@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ConflictCore – MySQLAuthRequest.php
+ * ConflictCore – MySQLNetworkRequest.php
  *
  * Copyright (C) 2017 Jack Noordhuis
  *
@@ -12,18 +12,18 @@
  *
  * @author JackNoordhuis
  *
- * Created on 29/01/2017 at 4:46 PM
+ * Created on 15/04/2017 at 12:41 AM
  *
  */
 
-namespace core\database\auth\mysql;
+namespace core\database\network\mysql;
 
 use core\database\mysql\MySQLRequest;
 
-abstract class MySQLAuthRequest extends MySQLRequest {
+abstract class MySQLNetworkRequest extends MySQLRequest {
 
 	/** The key used to store a mysqli instance onto the thread */
-	const AUTH_KEY = "mysqli.auth";
+	const AUTH_KEY = "mysqli.network";
 
 	/**
 	 * @return mixed|\mysqli

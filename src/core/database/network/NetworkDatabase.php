@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ConflictCore – Database.php
+ * ConflictCore – NetworkDatabase.php
  *
  * Copyright (C) 2017 Jack Noordhuis
  *
@@ -12,14 +12,16 @@
  *
  * @author JackNoordhuis
  *
- * Created on 29/01/2017 at 4:46 PM
+ * Created on 15/04/2017 at 12:41 AM
  *
  */
 
-namespace core\database;
+namespace core\database\network;
 
-interface Database {
+use core\database\Database;
 
-	public function close();
+interface NetworkDatabase extends Database {
+
+	public function sync();
 
 }

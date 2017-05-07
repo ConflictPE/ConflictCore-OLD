@@ -25,7 +25,7 @@ use pocketmine\plugin\PluginException;
 use pocketmine\Server;
 
 /**
- * Check to make sure the Auth database is online and working
+ * CheckDatabaseRequest to make sure the Auth database is online and working
  */
 class CheckDatabaseRequest extends MySQLAuthRequest {
 

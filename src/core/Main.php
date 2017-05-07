@@ -20,10 +20,12 @@ namespace core;
 
 use core\command\CoreCommandMap;
 use core\database\CoreDatabaseManager;
+use core\database\DatabaseManager;
 use core\entity\antihack\KillAuraDetector;
 use core\entity\text\FloatingText;
 use core\entity\text\FloatingTextManager;
 use core\language\LanguageManager;
+use core\network\NetworkManager;
 use core\task\ReportErrorTask;
 use core\task\RestartTask;
 use pocketmine\entity\Entity;
@@ -59,6 +61,9 @@ class Main extends PluginBase {
 	/** @var FloatingTextManager */
 	private $floatingTextManager;
 
+	/** @var NetworkManager */
+	private $networkManager;
+
 	/** @var RestartTask */
 	private $restartTask;
 
@@ -87,6 +92,8 @@ class Main extends PluginBase {
 		if(Main::$testing) $this->enableTesting();
 		$this->debug("Enabling command map...");
 		$this->setCommandMap();
+		$this->debug("Enabling network manager...");
+		$this->setNetworkManager();
 		$this->debug("Initializing database manager...");
 		$this->setDatabaseManager();
 		$this->debug("Setting event listener...");
@@ -104,7 +111,7 @@ class Main extends PluginBase {
 			$level->stopTime();
 			$this->floatingTextManager->onLevelLoad($level);
 		}
-		$this->getLogger()->info("Components enabled on {$server->getIp()}:{$server->getPort()} with {$server->getMaxPlayers()} slots! (" . round(microtime(true) - $this->loadTime, 3) . "s)!");
+		$this->getLogger()->info("ConflictCore enabled on {$server->getIp()}:{$server->getPort()} with {$server->getMaxPlayers()} slots! (" . round(microtime(true) - $this->loadTime, 3) . "s)!");
 	}
 
 	/**
@@ -124,6 +131,10 @@ class Main extends PluginBase {
 		/** @var CorePlayer $p */
 		foreach($this->getServer()->getOnlinePlayers() as $p) $p->kick($this->getLanguageManager()->translateForPlayer($p, "SERVER_RESTART"), false);
 		$this->errorLog->save(false);
+		$this->networkManager->getServer()->setOnline(false);
+		$this->databaseManager->getNetworkDatabase()->sync();
+		$this->databaseManager->close();
+		$this->networkManager->close();
 	}
 
 	/**
@@ -159,40 +170,50 @@ class Main extends PluginBase {
 	/**
 	 * @return Config
 	 */
-	public function getSettings() {
+	public function getSettings() : Config {
 		return $this->settings;
 	}
 
 	/**
 	 * @return CoreCommandMap
 	 */
-	public function getCommandMap() {
+	public function getCommandMap() : CoreCommandMap {
 		return $this->commandMap;
 	}
 
 	/**
 	 * @return CoreDatabaseManager
 	 */
-	public function getDatabaseManager() {
+	public function getDatabaseManager() : CoreDatabaseManager {
 		return $this->databaseManager;
 	}
 
 	/**
 	 * @return CoreListener
 	 */
-	public function getListener() {
+	public function getListener() : CoreListener {
 		return $this->listener;
 	}
 
 	/**
 	 * @return LanguageManager
 	 */
-	public function getLanguageManager() {
+	public function getLanguageManager() : LanguageManager {
 		return $this->languageManager;
 	}
 
+	/**
+	 * @return FloatingTextManager
+	 */
 	public function getFloatingTextManager() : FloatingTextManager {
 		return $this->floatingTextManager;
+	}
+
+	/**
+	 * @return NetworkManager
+	 */
+	public function getNetworkManager() : NetworkManager {
+		return $this->networkManager;
 	}
 
 	/**
@@ -228,6 +249,13 @@ class Main extends PluginBase {
 	 */
 	public function setFloatingTextManager() {
 		$this->floatingTextManager = new FloatingTextManager($this);
+	}
+
+	/**
+	 * Set the network manager
+	 */
+	public function setNetworkManager() {
+		$this->networkManager = new NetworkManager($this);
 	}
 
 	/**

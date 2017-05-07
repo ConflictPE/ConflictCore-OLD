@@ -23,11 +23,13 @@ use core\database\auth\mysql\MySQLAuthDatabase;
 use core\database\ban\BanDatabase;
 use core\database\ban\mysql\MySQLBanDatabase;
 use core\database\mysql\MySQLCredentials;
+use core\database\network\mysql\MySQLNetworkDatabase;
+use core\database\network\NetworkDatabase;
 use core\database\rank\mysql\MySQLRankDatabase;
 use core\database\rank\RankDatabase;
 
 class CoreDatabaseManager extends DatabaseManager {
-	
+
 	/** @var AuthDatabase */
 	private $authDatabase;
 
@@ -37,6 +39,12 @@ class CoreDatabaseManager extends DatabaseManager {
 	/** @var RankDatabase */
 	private $rankDatabase;
 
+	/** @var NetworkDatabase */
+	private $networkDatabase;
+
+	/** @var bool */
+	private $closed = false;
+
 	/**
 	 * Load up all the databases
 	 */
@@ -44,27 +52,35 @@ class CoreDatabaseManager extends DatabaseManager {
 		$this->setAuthDatabase();
 //		$this->setBanDatabase();
 //		$this->setRankDatabase();
+		$this->setNetworkDatabase();
 	}
 
 	/**
 	 * Set the auth database
 	 */
 	public function setAuthDatabase() {
-		$this->authDatabase = new MySQLAuthDatabase($this->getPlugin(), MySQLCredentials::fromArray($this->getPlugin()->getSettings()->getNested("settings.database.auth")));
+		$this->authDatabase = new MySQLAuthDatabase($this->getPlugin(), MySQLCredentials::fromArray($this->getPlugin()->getSettings()->getNested("settings.database")));
 	}
 
 	/**
 	 * Set the bans database
 	 */
 	public function setBanDatabase() {
-		$this->banDatabase = new MySQLBanDatabase($this->getPlugin(), MySQLCredentials::fromArray($this->getPlugin()->getSettings()->getNested("settings.data.bans")));
+		$this->banDatabase = new MySQLBanDatabase($this->getPlugin(), MySQLCredentials::fromArray($this->getPlugin()->getSettings()->getNested("settings.database")));
 	}
 
 	/**
 	 * Set the ranks database
 	 */
 	public function setRankDatabase() {
-		$this->banDatabase = new MySQLRankDatabase($this->getPlugin(), MySQLCredentials::fromArray($this->getPlugin()->getSettings()->getNested("settings.data.ranks")));
+		$this->banDatabase = new MySQLRankDatabase($this->getPlugin(), MySQLCredentials::fromArray($this->getPlugin()->getSettings()->getNested("settings.database")));
+	}
+
+	/**
+	 * Set the network database
+	 */
+	public function setNetworkDatabase() {
+		$this->networkDatabase = new MySQLNetworkDatabase($this->getPlugin(), MySQLCredentials::fromArray($this->getPlugin()->getSettings()->getNested("settings.database")));
 	}
 
 	/**
@@ -86,6 +102,24 @@ class CoreDatabaseManager extends DatabaseManager {
 	 */
 	public function getRankDatabase() {
 		return $this->rankDatabase;
+	}
+
+	/**
+	 * @return NetworkDatabase
+	 */
+	public function getNetworkDatabase() {
+		return $this->networkDatabase;
+	}
+
+	public function close() {
+		if(!$this->closed) {
+			$this->closed = true;
+			$this->authDatabase->close();
+			//$this->banDatabase->close();
+			//$this->rankDatabase->close();
+			$this->networkDatabase->close();
+			unset($this->authDatabase, $this->banDatabase, $this->rankDatabase, $this->networkDatabase);
+		}
 	}
 
 }
