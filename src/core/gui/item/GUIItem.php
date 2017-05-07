@@ -104,7 +104,12 @@ abstract class GUIItem extends Item {
 	}
 
 	public function giveEnchantmentEffect() {
-		$tag = $this->getNamedTag();
+		if(!$this->hasCompoundTag()){
+			$tag = new CompoundTag("", []);
+		}else{
+			$tag = $this->getNamedTag();
+		}
+
 		$tag->ench = new ListTag("ench", [
 			0 => new CompoundTag("", [
 				"id" => new ShortTag("id", -1),

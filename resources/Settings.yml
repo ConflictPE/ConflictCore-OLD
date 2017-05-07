@@ -25,7 +25,7 @@ settings:
     # ** Do not input any value here without checking with database and/or other staff first or the server won't sync properly **
     id: 1
     # Time in ticks in which the server should sync with the database
-    sync-interval: 20
+    sync-interval: 100
   database:
     host: "172.106.17.114"
     user: "12"

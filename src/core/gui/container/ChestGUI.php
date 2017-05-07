@@ -54,6 +54,10 @@ abstract class ChestGUI extends ChestInventory implements ContainerGUI {
 		parent::__construct($this->fakeChest);
 	}
 
+	public function setCustomName(string $name) {
+		$this->fakeChest->namedtag->CustomName = new StringTag("CustomName", $name);
+	}
+
 	public function onOpen(Player $who) {
 		$this->lastOpenPos = $who->getPosition()->subtract(0.5, 4, 0.5);
 		$this->fakeChest->setComponents($this->lastOpenPos->x, $this->lastOpenPos->y, $this->lastOpenPos->z);
@@ -65,8 +69,10 @@ abstract class ChestGUI extends ChestInventory implements ContainerGUI {
 	}
 
 	public function onClose(Player $who) {
-		Utils::sendBlock($who, $this->lastOpenPos, $this->replacedBlockData[0], $this->replacedBlockData[1]);
-		parent::onClose($who);
+		if($this->lastOpenPos !== null) {
+			Utils::sendBlock($who, $this->lastOpenPos, $this->replacedBlockData[0], $this->replacedBlockData[1]);
+			parent::onClose($who);
+		}
 	}
 
 	public function onSelect($slot, GUIItem $item, CorePlayer $player) {
