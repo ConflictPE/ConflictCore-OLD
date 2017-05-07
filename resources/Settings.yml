@@ -27,8 +27,8 @@ settings:
     # Time in ticks in which the server should sync with the database
     sync-interval: 20
   database:
-    host: "localhost"
-    user: "root"
-    password: "root"
-    name: "crazedcraft"
+    host: "172.106.17.114"
+    user: "12"
+    password: "0d5b45c4ee"
+    name: "12"
     port: 3306
