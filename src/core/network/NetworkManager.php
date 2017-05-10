@@ -117,8 +117,8 @@ class NetworkManager {
 	 * Recalculate the global slot counts for the network
 	 */
 	public function recalculateSlots() {
-		$online = 0;
-		$max = 0;
+		$online = $this->server->getOnlinePlayers();
+		$max = $this->server->getMaxPlayers();
 		foreach($this->nodes as $node) {
 			$node->recalculateSlotCounts();
 			$online += $node->getOnlinePlayers();

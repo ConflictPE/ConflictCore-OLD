@@ -41,6 +41,7 @@ use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\player\PlayerPreLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\event\server\QueryRegenerateEvent;
 use pocketmine\item\Item;
 use pocketmine\network\protocol\ContainerSetSlotPacket;
 use pocketmine\network\protocol\InteractPacket;
@@ -89,6 +90,16 @@ class CoreListener implements Listener {
 	 */
 	public function getPlugin() {
 		return $this->getPlugin();
+	}
+
+	/**
+	 * Set the global player counts
+	 *
+	 * @param QueryRegenerateEvent $event
+	 */
+	public function onQueryRegenerate(QueryRegenerateEvent $event) {
+		$event->setPlayerCount($this->plugin->getNetworkManager()->getOnlinePlayers());
+		$event->setMaxPlayerCount($this->plugin->getNetworkManager()->getMaxPlayers());
 	}
 
 	/**
@@ -148,6 +159,7 @@ class CoreListener implements Listener {
 			return;
 		}
 		$this->plugin->getDatabaseManager()->getAuthDatabase()->login($player->getName());
+		$this->plugin->getDatabaseManager()->getBanDatabase()->check($player->getName(), $player->getAddress(), $player->getClientId(), true);
 		$player->setChatMuted(true);
 	}
 
@@ -231,11 +243,12 @@ class CoreListener implements Listener {
 	 */
 	public function onBreak(BlockBreakEvent $event) {
 		$player = $event->getPlayer();
-		if($player instanceof CorePlayer) {
-			$player->onBreak($event);
-		} else {
-			$event->setCancelled();
-		}
+		//if($player instanceof CorePlayer) {
+		//	$player->onBreak($event);
+		//} else {
+		//	$event->setCancelled();
+		//}
+		if(!$player->isAuthenticated()) $event->setCancelled();
 	}
 
 	/**
@@ -245,11 +258,12 @@ class CoreListener implements Listener {
 	 */
 	public function onPlace(BlockPlaceEvent $event) {
 		$player = $event->getPlayer();
-		if($player instanceof CorePlayer) {
-			$player->onPlace($event);
-		} else {
-			$event->setCancelled();
-		}
+		//if($player instanceof CorePlayer) {
+		//	$player->onPlace($event);
+		//} else {
+		//	$event->setCancelled();
+		//}
+		if(!$player->isAuthenticated()) $event->setCancelled();
 	}
 
 	/**
@@ -267,12 +281,15 @@ class CoreListener implements Listener {
 	 * @param PlayerMoveEvent $event
 	 */
 	public function onMove(PlayerMoveEvent $event) {
+		/** @var CorePlayer $player */
 		$player = $event->getPlayer();
-		if($player instanceof CorePlayer) {
-			$player->onMove($event);
-		} else {
-			$event->setCancelled();
-		}
+		//if($player instanceof CorePlayer) {
+		//	$player->onMove($event);
+		//} else {
+		//	$event->setCancelled();
+		//}
+
+		if(!$player->isAuthenticated()) $event->setCancelled();
 	}
 
 	/**
@@ -282,11 +299,13 @@ class CoreListener implements Listener {
 	 */
 	public function onItemDrop(PlayerDropItemEvent $event) {
 		$player = $event->getPlayer();
-		if($player instanceof CorePlayer) {
-			$player->onDrop($event);
-		} else {
-			$event->setCancelled();
-		}
+		//if($player instanceof CorePlayer) {
+		//	$player->onDrop($event);
+		//} else {
+		//	$event->setCancelled();
+		//}
+
+		if(!$player->isAuthenticated()) $event->setCancelled();
 	}
 
 	/**
@@ -296,11 +315,12 @@ class CoreListener implements Listener {
 	 */
 	public function onInteract(PlayerInteractEvent $event) {
 		$player = $event->getPlayer();
-		if($player instanceof CorePlayer) {
-			$player->onInteract($event);
-		} else {
-			$event->setCancelled();
-		}
+		//if($player instanceof CorePlayer) {
+		//	$player->onInteract($event);
+		//} else {
+		//	$event->setCancelled();
+		//}
+		if(!$player->isAuthenticated()) $event->setCancelled();
 	}
 
 	/**

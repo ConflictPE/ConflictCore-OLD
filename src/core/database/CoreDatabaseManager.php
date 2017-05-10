@@ -50,7 +50,7 @@ class CoreDatabaseManager extends DatabaseManager {
 	 */
 	protected function init() {
 		$this->setAuthDatabase();
-//		$this->setBanDatabase();
+		$this->setBanDatabase();
 //		$this->setRankDatabase();
 		$this->setNetworkDatabase();
 	}

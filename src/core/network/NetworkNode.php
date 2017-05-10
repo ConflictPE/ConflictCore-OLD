@@ -91,7 +91,7 @@ class NetworkNode {
 		$max = 0;
 		$time = time();
 		foreach($this->servers as $server) {
-			if($time - $server->getLastSyncTime() <= 15) {
+			if($server->isOnline() and $time - $server->getLastSyncTime() <= 15) {
 				$online += $server->getOnlinePlayers();
 				$max += $server->getMaxPlayers();
 			}

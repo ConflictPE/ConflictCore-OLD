@@ -56,6 +56,18 @@ class CorePlayer extends Player {
 	private $authenticated = false;
 
 	/** @var bool */
+	private $networkBanned = false;
+
+	/** @var bool */
+	private $hasPreviousNetworkBan = false;
+
+	/** @var array */
+	private $networkBanData = [];
+
+	/** @var array */
+	private $previousNetworkBanData = [];
+
+	/** @var bool */
 	private $locked = false;
 
 	/** @var string */
@@ -161,6 +173,34 @@ class CorePlayer extends Player {
 	 */
 	public function isAuthenticated() {
 		return $this->authenticated;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isNetworkBanned() {
+		return $this->networkBanned;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasPreviousNetworkBan() {
+		return $this->hasPreviousNetworkBan;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getNetworkBanData() {
+		return $this->networkBanData;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getPreviousNetworkBanData() {
+		return $this->previousNetworkBanData;
 	}
 
 	/**
@@ -345,6 +385,34 @@ class CorePlayer extends Player {
 			$pk->slots = array_merge(Item::getCreativeItems(), $this->personalCreativeItems);
 		}
 		$this->dataPacket($pk);
+	}
+
+	/**
+	 * @param bool $value
+	 */
+	public function setNetworkBanned($value = true) {
+		$this->networkBanned = $value;
+	}
+
+	/**
+	 * @param bool $value
+	 */
+	public function setHasPreviousNetworkBan($value = true) {
+		$this->hasPreviousNetworkBan = $value;
+	}
+
+	/**
+	 * @param array $data
+	 */
+	public function setNetworkBanData($data = []) {
+		$this->networkBanData = $data;
+	}
+
+	/**
+	 * @param array $data
+	 */
+	public function setPreviousNetworkBanData($data = []) {
+		$this->previousNetworkBanData = $data;
 	}
 
 	/**
@@ -617,6 +685,23 @@ class CorePlayer extends Player {
 					}
 					$this->sendTranslatedMessage("INVALID_EMAIL", [], true);
 					break;
+			}
+		}
+	}
+
+	/**
+	 * Checks a players network ban status after querying the database and handles the results accordingly
+	 */
+	public function checkNetworkBan() {
+		if($this->networkBanned and is_array($this->networkBanData)) {
+			if(isset($this->networkBanData["ip"]) and $this->networkBanData["ip"] !== "0.0.0.0" and isset($this->networkBanData["uid"]) and $this->networkBanData["uid"] !== "") {
+				$this->kick($this->getCore()->getLanguageManager()->translateForPlayer($this, "BANNED_KICK", [
+					$this->networkBanData["issuer_name"],
+					$this->networkBanData["reason"],
+					$this->networkBanData["expires"] > 0 ? date("j-n-Y g:i a T", $this->networkBanData["expires"]) : "Never",
+				]));
+			} else {
+				$this->getCore()->getDatabaseManager()->getBanDatabase()->update($this->getName(), $this->getAddress(), $this->getClientId());
 			}
 		}
 	}

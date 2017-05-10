@@ -5,14 +5,14 @@
  *
  * Copyright (C) 2017 Jack Noordhuis
  *
- * This is private software, you cannot redistribute and/or modify it in any way
- * unless given explicit permission to do so. If you have not been given explicit
+ * This is private software, you cannot redistribute it and/or modify any way
+ * unless otherwise given permission to do so. If you have not been given explicit
  * permission to view or modify this software you should take the appropriate actions
  * to remove this software from your device immediately.
  *
  * @author JackNoordhuis
  *
- * Created on 29/01/2017 at 4:46 PM
+ * Created on 14/07/2016 at 12:53 AM
  *
  */
 
@@ -21,8 +21,8 @@ namespace core\database\ban\mysql\task;
 use core\database\ban\mysql\MySQLBanDatabase;
 use core\database\mysql\MySQLRequest;
 use core\Main;
-use pocketmine\plugin\PluginException;
 use pocketmine\Server;
+use pocketmine\utils\PluginException;
 
 /**
  * Check to make sure the Auth database is online and working
@@ -46,11 +46,17 @@ class CheckDatabaseRequest extends MySQLRequest {
 			$this->setResult([self::CONNECTION_FAILURE, $mysqli->connect_error]);
 			return;
 		}
-		$mysqli->query("CREATE TABLE IF NOT EXISTS bans (
-			username VARCHAR(64) PRIMARY KEY,
-			ip VARCHAR(50) DEFAULT '0.0.0.0',
-			expires INT DEFAULT 0,
-			created INT DEFAULT 0
+		$mysqli->query("
+			CREATE TABLE IF NOT EXISTS bans (
+				id INT AUTO_INCREMENT PRIMARY KEY,
+				username VARCHAR(16),
+				ip VARCHAR(50) DEFAULT '0.0.0.0',
+				uid VARCHAR(128),
+				expires INT DEFAULT 0,
+				created INT DEFAULT 0,
+				reason VARCHAR(256),
+				issuer_name VARCHAR(16),
+				valid BIT DEFAULT 1
 			)");
 		if(isset($mysqli->error) and $mysqli->error) {
 			$mysqli->close();
