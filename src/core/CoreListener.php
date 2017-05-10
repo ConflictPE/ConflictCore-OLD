@@ -243,12 +243,11 @@ class CoreListener implements Listener {
 	 */
 	public function onBreak(BlockBreakEvent $event) {
 		$player = $event->getPlayer();
-		//if($player instanceof CorePlayer) {
-		//	$player->onBreak($event);
-		//} else {
-		//	$event->setCancelled();
-		//}
-		if(!$player->isAuthenticated()) $event->setCancelled();
+		if($player instanceof CorePlayer) {
+			$player->onBreak($event);
+		} else {
+			$event->setCancelled();
+		}
 	}
 
 	/**
@@ -258,12 +257,11 @@ class CoreListener implements Listener {
 	 */
 	public function onPlace(BlockPlaceEvent $event) {
 		$player = $event->getPlayer();
-		//if($player instanceof CorePlayer) {
-		//	$player->onPlace($event);
-		//} else {
-		//	$event->setCancelled();
-		//}
-		if(!$player->isAuthenticated()) $event->setCancelled();
+		if($player instanceof CorePlayer) {
+			$player->onPlace($event);
+		} else {
+			$event->setCancelled();
+		}
 	}
 
 	/**
@@ -283,13 +281,11 @@ class CoreListener implements Listener {
 	public function onMove(PlayerMoveEvent $event) {
 		/** @var CorePlayer $player */
 		$player = $event->getPlayer();
-		//if($player instanceof CorePlayer) {
-		//	$player->onMove($event);
-		//} else {
-		//	$event->setCancelled();
-		//}
-
-		if(!$player->isAuthenticated()) $event->setCancelled();
+		if($player instanceof CorePlayer) {
+			$player->onMove($event);
+		} else {
+			$event->setCancelled();
+		}
 	}
 
 	/**
@@ -299,13 +295,11 @@ class CoreListener implements Listener {
 	 */
 	public function onItemDrop(PlayerDropItemEvent $event) {
 		$player = $event->getPlayer();
-		//if($player instanceof CorePlayer) {
-		//	$player->onDrop($event);
-		//} else {
-		//	$event->setCancelled();
-		//}
-
-		if(!$player->isAuthenticated()) $event->setCancelled();
+		if($player instanceof CorePlayer) {
+			$player->onDrop($event);
+		} else {
+			$event->setCancelled();
+		}
 	}
 
 	/**
@@ -315,12 +309,11 @@ class CoreListener implements Listener {
 	 */
 	public function onInteract(PlayerInteractEvent $event) {
 		$player = $event->getPlayer();
-		//if($player instanceof CorePlayer) {
-		//	$player->onInteract($event);
-		//} else {
-		//	$event->setCancelled();
-		//}
-		if(!$player->isAuthenticated()) $event->setCancelled();
+		if($player instanceof CorePlayer) {
+			$player->onInteract($event);
+		} else {
+			$event->setCancelled();
+		}
 	}
 
 	/**
