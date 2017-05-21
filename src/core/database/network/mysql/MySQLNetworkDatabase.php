@@ -37,7 +37,6 @@ class MySQLNetworkDatabase extends MySQLDatabase implements NetworkDatabase {
 	 * Schedule an AsyncTask to check the database's status
 	 */
 	public function init() {
-		$this->getPlugin()->getServer()->getScheduler()->scheduleAsyncTask(new CheckDatabaseRequest($this));
 		$this->getPlugin()->getServer()->getScheduler()->scheduleAsyncTask(new FetchNodeListRequest($this));
 		$this->updateScheduler = new NetworkScheduler($this->getPlugin());
 	}

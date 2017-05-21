@@ -31,7 +31,6 @@ class MySQLBanDatabase extends MySQLDatabase implements BanDatabase {
 	 * Schedule an AsyncTask to check the database's status
 	 */
 	public function init() {
-		$this->getPlugin()->getServer()->getScheduler()->scheduleAsyncTask(new CheckDatabaseRequest($this));
 	}
 
 	public function check($name, $ip, $cid, $doCallback) {

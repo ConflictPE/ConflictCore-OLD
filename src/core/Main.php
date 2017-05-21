@@ -22,12 +22,14 @@ use core\command\CoreCommandMap;
 use core\database\CoreDatabaseManager;
 use core\database\DatabaseManager;
 use core\entity\antihack\KillAuraDetector;
+use core\entity\pets\PetsManager;
 use core\entity\text\FloatingText;
 use core\entity\text\FloatingTextManager;
 use core\language\LanguageManager;
 use core\network\NetworkManager;
 use core\task\ReportErrorTask;
 use core\task\RestartTask;
+use core\particle\ParticleManager;
 use pocketmine\entity\Entity;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
@@ -63,6 +65,12 @@ class Main extends PluginBase {
 
 	/** @var NetworkManager */
 	private $networkManager;
+
+	/** @var PetsManager|null */
+	private $petsManager;
+
+	/** @var ParticleManager|null */
+	private $particleManager;
 
 	/** @var RestartTask */
 	private $restartTask;
@@ -217,6 +225,20 @@ class Main extends PluginBase {
 	}
 
 	/**
+	 * @return PetsManager|null
+	 */
+	public function getPetsManager() {
+		return $this->petsManager;
+	}
+
+	/**
+	 * @return ParticleManager
+	 */
+	public function getParticleManager() {
+		return $this->particleManager;
+	}
+
+	/**
 	 * Set the command map
 	 */
 	public function setCommandMap() {
@@ -256,6 +278,20 @@ class Main extends PluginBase {
 	 */
 	public function setNetworkManager() {
 		$this->networkManager = new NetworkManager($this);
+	}
+
+	/**
+	 * Set the pet manager
+	 */
+	public function setPetsManager() {
+		$this->petsManager = new PetsManager($this);
+	}
+
+	/**
+	 * Set the particle manager
+	 */
+	public function setParticleManager() {
+		$this->particleManager = new ParticleManager($this);
 	}
 
 	/**

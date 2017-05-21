@@ -22,6 +22,7 @@ use core\command\commands\ChangePasswordCommand;
 use core\command\commands\DumpSkinCommand;
 use core\command\commands\HologramCommand;
 use core\command\commands\LoginCommand;
+use core\command\commands\PetCommand;
 use core\command\commands\PlayCommand;
 use core\command\commands\RegisterCommand;
 use core\command\commands\StaffChatCommand;
@@ -59,6 +60,7 @@ class CoreCommandMap {
 			new DumpSkinCommand($this->plugin),
 			new HologramCommand($this->plugin),
 			new LoginCommand($this->plugin),
+			new PetCommand($this->plugin),
 			new PlayCommand($this->plugin),
 			new RegisterCommand($this->plugin),
 			new StaffChatCommand($this->plugin),

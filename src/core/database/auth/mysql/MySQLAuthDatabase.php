@@ -39,7 +39,6 @@ class MySQLAuthDatabase extends MySQLDatabase implements AuthDatabase {
 	 * Schedule an AsyncTask to check the database's status
 	 */
 	public function init() {
-		$this->getPlugin()->getServer()->getScheduler()->scheduleAsyncTask(new CheckDatabaseRequest($this));
 		//$this->updateScheduler = new UpdateRequestScheduler($this->getPlugin());
 	}
 

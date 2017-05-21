@@ -53,6 +53,13 @@ abstract class GUIItem extends Item {
 	}
 
 	/**
+	 * @return ContainerGUI|null
+	 */
+	public function getParent() {
+		return $this->parent;
+	}
+
+	/**
 	 *
 	 *
 	 * @param CorePlayer $player
@@ -82,7 +89,9 @@ abstract class GUIItem extends Item {
 		return true;
 	}
 
-	public abstract function getCooldown() : int;
+	public function getCooldown() : int {
+		return 0;
+	}
 
 	public function getPreviewName(CorePlayer $player) {
 		return $this->getName();

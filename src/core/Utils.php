@@ -1,5 +1,4 @@
 <?php
-
 /**
  * ConflictCore – Utils.php
  *
@@ -24,8 +23,8 @@ use pocketmine\level\WeakPosition;
 use pocketmine\math\Vector3;
 use pocketmine\network\protocol\UpdateBlockPacket;
 use pocketmine\Server;
-use pocketmine\utils\TextFormat as TF;
 use pocketmine\utils\TextFormat;
+use pocketmine\utils\TextFormat as TF;
 
 class Utils {
 
@@ -35,6 +34,7 @@ class Utils {
 	 * Get a vector instance from a string
 	 *
 	 * @param string $string
+	 *
 	 * @return Vector3
 	 */
 	public static function parseVector(string $string) {
@@ -46,6 +46,7 @@ class Utils {
 	 * Get a position instance from a string
 	 *
 	 * @param string $string
+	 *
 	 * @return Position|Vector3
 	 */
 	public static function parsePosition(string $string) {
@@ -82,14 +83,12 @@ class Utils {
 		$string = str_replace($symbol . "d", TF::LIGHT_PURPLE, $string);
 		$string = str_replace($symbol . "e", TF::YELLOW, $string);
 		$string = str_replace($symbol . "f", TF::WHITE, $string);
-
 		$string = str_replace($symbol . "k", TF::OBFUSCATED, $string);
 		$string = str_replace($symbol . "l", TF::BOLD, $string);
 		$string = str_replace($symbol . "m", TF::STRIKETHROUGH, $string);
 		$string = str_replace($symbol . "n", TF::UNDERLINE, $string);
 		$string = str_replace($symbol . "o", TF::ITALIC, $string);
 		$string = str_replace($symbol . "r", TF::RESET, $string);
-
 		return $string;
 	}
 
@@ -97,6 +96,7 @@ class Utils {
 	 * Removes all coloring and color codes from a string
 	 *
 	 * @param $string
+	 *
 	 * @return mixed
 	 */
 	public static function cleanString($string) {
@@ -109,6 +109,7 @@ class Utils {
 	 * Replaces all in a string spaces with -
 	 *
 	 * @param $string
+	 *
 	 * @return mixed
 	 */
 	public static function stripSpaces($string) {
@@ -130,7 +131,7 @@ class Utils {
 
 	/**
 	 * Center a line of text based around the length of another line
-	 * 
+	 *
 	 * @param $toCentre
 	 * @param $checkAgainst
 	 *
@@ -140,7 +141,6 @@ class Utils {
 		if(strlen($toCentre) >= strlen($checkAgainst)) {
 			return $toCentre;
 		}
-
 		$times = floor((strlen($checkAgainst) - strlen($toCentre)) / 2);
 		return str_repeat(" ", ($times > 0 ? $times : 0)) . $toCentre;
 	}
@@ -169,7 +169,6 @@ class Utils {
 		}
 		trim($timeStr);
 		return $timeStr;
-
 	}
 
 	/**
@@ -178,9 +177,8 @@ class Utils {
 	 * @return null|\pocketmine\Player
 	 */
 	public static function getPlayerByUUID($uuid) {
-		$uuid = str_replace("-", "", strtolower($uuid));
 		foreach(Server::getInstance()->getOnlinePlayers() as $player) {
-			if(str_replace("-", "", strtolower($player->getUniqueId()->toString())) == $uuid) {
+			if($player->getUniqueId()->toString() === $uuid) {
 				return $player;
 			}
 		}
@@ -203,7 +201,7 @@ class Utils {
 		$pk->blockId = $id;
 		$pk->blockData = $damage;
 		$pk->flags = UpdateBlockPacket::FLAG_PRIORITY;
-		$player->dataPacket($pk);
+		$player->directDataPacket($pk);
 	}
 
 	/**
@@ -225,7 +223,7 @@ class Utils {
 		}
 		$messages = [];
 		$j = 0;
-		for($i = (int)$start; isset($trace[$i]); ++$i, ++$j) {
+		for($i = (int) $start; isset($trace[$i]); ++$i, ++$j) {
 			$params = "";
 			if(isset($trace[$i]["args"]) or isset($trace[$i]["params"])) {
 				if(isset($trace[$i]["args"])) {
@@ -240,6 +238,53 @@ class Utils {
 			$messages[] = "#$j " . (isset($trace[$i]["file"]) ? ($trace[$i]["file"]) : "") . "(" . (isset($trace[$i]["line"]) ? $trace[$i]["line"] : "") . "): " . (isset($trace[$i]["class"]) ? $trace[$i]["class"] . (($trace[$i]["type"] === "dynamic" or $trace[$i]["type"] === "->") ? "->" : "::") : "") . $trace[$i]["function"] . "(" . substr($params, 0, -2) . ")";
 		}
 		return $messages;
+	}
+
+	/**
+	 * HSV to RGB conversion
+	 *
+	 * @param int $h
+	 * @param int $s
+	 * @param int $v
+	 * @param int $r
+	 * @param int $g
+	 * @param int $b
+	 */
+	public static function hsv2rgb($h, $s, $v, &$r, &$g, &$b) {
+		$h = (($h % 360) / 359) * 6;
+		$s = ($s % 101) / 100;
+		$i = floor($h);
+		$f = $h - $i;
+		$v = ($v % 101) / 100 * 255;
+		$m = $v * (1 - $s) * 255;
+		$n = $v * (1 - $s * $f) * 255;
+		$k = $v * (1 - $s * (1 - $f)) * 255;
+		$r = $g = $b = 0;
+		if($i == 0) {
+			$r = $v;
+			$g = $k;
+			$b = $m;
+		} elseif($i == 1) {
+			$r = $n;
+			$g = $v;
+			$b = $m;
+		} elseif($i == 2) {
+			$r = $m;
+			$g = $v;
+			$b = $k;
+		} elseif($i == 3) {
+			$r = $m;
+			$g = $n;
+			$b = $v;
+		} elseif($i == 4) {
+			$r = $k;
+			$g = $m;
+			$b = $v;
+		} elseif($i == 5 || $i == 6) {
+			$r = $v;
+			$g = $m;
+			$b = $n;
+		}
 	}
 
 	/**

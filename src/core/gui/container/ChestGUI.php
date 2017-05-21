@@ -21,6 +21,7 @@ namespace core\gui\container;
 use core\CorePlayer;
 use core\gui\item\GUIItem;
 use core\Utils;
+use pocketmine\inventory\BaseInventory;
 use pocketmine\inventory\ChestInventory;
 use pocketmine\item\Item;
 use pocketmine\level\Position;
@@ -71,7 +72,7 @@ abstract class ChestGUI extends ChestInventory implements ContainerGUI {
 	public function onClose(Player $who) {
 		if($this->lastOpenPos !== null) {
 			Utils::sendBlock($who, $this->lastOpenPos, $this->replacedBlockData[0], $this->replacedBlockData[1]);
-			parent::onClose($who);
+			BaseInventory::onClose($who);
 		}
 	}
 

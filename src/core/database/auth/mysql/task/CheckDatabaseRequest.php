@@ -20,6 +20,7 @@ namespace core\database\auth\mysql\task;
 
 use core\database\auth\mysql\MySQLAuthDatabase;
 use core\database\auth\mysql\MySQLAuthRequest;
+use core\entity\pets\PetTypes;
 use core\Main;
 use pocketmine\plugin\PluginException;
 use pocketmine\Server;
@@ -51,7 +52,8 @@ class CheckDatabaseRequest extends MySQLAuthRequest {
 			timeplayed INT DEFAULT 0,
 			lastlogin INT DEFAULT 0,
 			registerdate INT DEFAULT 0,
-			coins INT DEFAULT 0
+			tokens INT DEFAULT 0,
+			last_pet VARCHAR(128) DEFAULT " . PetTypes::PET_TYPE_CHICKEN . "
 			)");
 		$stmt->execute();
 		if($this->checkError($stmt)) return;

@@ -19,9 +19,11 @@
 namespace core;
 
 use core\entity\antihack\KillAuraDetector;
+use core\entity\pets\PetTypes;
 use core\gui\container\ContainerGUI;
 use core\gui\item\GUIItem;
 use core\language\LanguageManager;
+use core\particle\ParticleTypes;
 use pocketmine\block\Block;
 use pocketmine\entity\Entity;
 use pocketmine\event\block\BlockBreakEvent;
@@ -129,6 +131,24 @@ class CorePlayer extends Player {
 
 	/** @var array */
 	private $guis = [];
+
+	/** @var string */
+	private $hasPet = false;
+
+	/** @var string */
+	private $lastUsedPet = PetTypes::PET_TYPE_CHICKEN;
+
+	/** @var int */
+	private $petEntityId = -1; // Store the entities level id to prevent reference memory leaks
+
+	/** @var int */
+	private $lastMoveTick = 0;
+
+	/** @var bool */
+	private $hasParticle = false;
+
+	/** @var string */
+	private $selectedParticle = ParticleTypes::PARTICLE_TYPE_LAVA;
 
 	private $popups = [];
 	private $tips = [];
@@ -325,6 +345,55 @@ class CorePlayer extends Player {
 			return $this->guis[$type];
 		}
 		return null;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasPet() : bool {
+		return $this->hasPet;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLastUsedPetType() : string {
+		return $this->lastUsedPet;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPetEntityId() : int {
+		return $this->petEntityId;
+	}
+
+	/**
+	 * @return Entity|null
+	 */
+	public function getPetEntity() {
+		return $this->level->getEntity($this->petEntityId);
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLastMoveTick() {
+		return $this->lastMoveTick;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasParticle() : bool {
+		return $this->hasParticle;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSelectedParticleType() : string {
+		return $this->selectedParticle;
 	}
 
 	/**
@@ -554,6 +623,41 @@ class CorePlayer extends Player {
 		throw new \ErrorException("Attempted to overwrite existing GUI container!");
 	}
 
+	/**
+	 * @param bool $value
+	 */
+	public function setHasPet(bool $value) {
+		$this->hasPet = $value;
+	}
+
+	/**
+	 * @param string $type
+	 */
+	public function setLastUsedPetType(string $type) {
+		$this->lastUsedPet = $type;
+	}
+
+	/**
+	 * @param int $id
+	 */
+	public function setPetEntityId(int $id) {
+		$this->petEntityId = $id;
+	}
+
+	/**
+	 * @param bool $value
+	 */
+	public function setHasParticle(bool $value) {
+		$this->hasParticle = $value;
+	}
+
+	/**
+	 * @param string $type
+	 */
+	public function setSelectedParticleType(string $type) {
+		$this->selectedParticle = $type;
+	}
+
 	public function addPopup($identifier, $message, $duration = 20, $transitionDelay = 10, $priority = 0, $immediate = false) {
 		if(stristr($message, "\n") && $transitionDelay > 0) {
 			$message = explode("\n", $message);
@@ -719,6 +823,45 @@ class CorePlayer extends Player {
 			"timePlayed" => time() - $this->loginTime,
 			"lastLogin" => $this->loginTime
 		];
+	}
+
+	/**
+	 * Activate the players pet based upon the last pet used
+	 */
+	public function activatePet() {
+		$this->getCore()->getPetsManager()->createPetFor($this);
+	}
+
+	/**
+	 * Respawn the pet to be the correct type
+	 */
+	public function changePet() {
+		$this->deactivatePet();
+		$this->activatePet();
+	}
+
+	/**
+	 * Remove the players pet
+	 */
+	public function deactivatePet() {
+		$this->getPetEntity()->close();
+		$this->hasPet = false;
+		$this->petEntityId = -1;
+	}
+
+	/**
+	 * Activate the selected particle effect
+	 */
+	public function activateParticleEffect() {
+		$this->getCore()->getParticleManager()->subscribePlayerToEffect($this, $this->selectedParticle);
+	}
+
+	/**
+	 * Deactivate the selected particle effect
+	 */
+	public function deactivateParticleEffect() {
+		$this->getCore()->getParticleManager()->unSubscribePlayerFromEffect($this->getName(), $this->selectedParticle);
+		$this->setHasParticle(false);
 	}
 
 	/**
@@ -924,6 +1067,10 @@ class CorePlayer extends Player {
 	 * @param PlayerMoveEvent $event
 	 */
 	public function onMove(PlayerMoveEvent $event) {
+		if(!$event->isCancelled()) {
+			$this->lastMoveTick = $this->server->getTick();
+		}
+
 		if(!$this->isAuthenticated()){
 			$from = $event->getFrom();
 			$to = clone $event->getTo();
