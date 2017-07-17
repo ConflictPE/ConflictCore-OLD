@@ -21,7 +21,7 @@ namespace core\database\rank\mysql\task;
 use core\database\mysql\MySQLRequest;
 use core\database\rank\mysql\MySQLRankDatabase;
 use core\Main;
-use pocketmine\plugin\PluginException;
+use pocketmine\utils\PluginException;
 use pocketmine\Server;
 
 /**

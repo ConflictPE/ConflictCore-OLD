@@ -92,7 +92,7 @@ class MatchManager {
 			}
 		}
 		$this->timings->stopTiming();
-		$this->plugin->getLogger()->debug("Ticked MatchManager in " . round(($currentTick - $this->lastTick) / 20) . " seconds!");
+		$this->plugin->getLogger()->debug("Ticked MatchManager in " . round(($currentTick - $this->lastTick), 3) . " ticks!");
 	}
 
 }

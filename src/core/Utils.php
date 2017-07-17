@@ -205,6 +205,17 @@ class Utils {
 	}
 
 	/**
+	 * returns a minutes:seconds representation
+	 *
+	 * @param int $seconds
+	 *
+	 * @return false|string
+	 */
+	public static function getMinutesSecondsString(int $seconds) {
+		return gmdate("i:s", $seconds);
+	}
+
+	/**
 	 * Return the stack trace
 	 *
 	 * @param int $start

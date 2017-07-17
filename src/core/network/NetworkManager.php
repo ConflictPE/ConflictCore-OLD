@@ -44,7 +44,7 @@ class NetworkManager {
 		$this->plugin = $plugin;
 		$settings = $plugin->getSettings();
 		$server = $plugin->getServer();
-		$this->server = new NetworkServer($settings->getNested("settings.network.id"), $server->getNetwork()->getName(), $settings->getNested("settings.network.node"), $server->getIp(), $server->getPort(), count($server->getOnlinePlayers()), $server->getMaxPlayers(), [], time(), true);
+		$this->server = new NetworkServer($settings->getNested("settings.network.id"), $server->getServerName(), $settings->getNested("settings.network.node"), $server->getIp(), $server->getPort(), count($server->getOnlinePlayers()), $server->getMaxPlayers(), [], time(), true);
 	}
 
 	/**

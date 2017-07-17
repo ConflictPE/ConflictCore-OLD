@@ -24,11 +24,11 @@ use pocketmine\entity\Human;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\level\Level;
 use pocketmine\level\Location;
-use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\Compound;
 use pocketmine\network\protocol\AddPlayerPacket;
 use pocketmine\network\protocol\PlayerListPacket;
 use pocketmine\Player;
-use pocketmine\plugin\PluginException;
+use pocketmine\utils\PluginException;
 
 abstract class HumanNPC extends Human implements BaseNPC {
 
@@ -157,7 +157,7 @@ abstract class HumanNPC extends Human implements BaseNPC {
 	 *
 	 * @return HumanNPC|null
 	 */
-	public static function spawn($shortName, Location $pos, $name, $skin, $skinName, CompoundTag $nbt) {
+	public static function spawn($shortName, Location $pos, $name, $skin, $skinName, Compound $nbt) {
 		$entity = Entity::createEntity($shortName, $pos->getLevel()->getChunk($pos->x >> 4, $pos->z >> 4), $nbt);
 		if($entity instanceof HumanNPC) {
 			$entity->setSkin($skin, $skinName);

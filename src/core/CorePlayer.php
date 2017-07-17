@@ -18,6 +18,7 @@
 
 namespace core;
 
+use core\command\CoreCommand;
 use core\entity\antihack\KillAuraDetector;
 use core\entity\pets\PetTypes;
 use core\gui\container\ContainerGUI;
@@ -39,12 +40,14 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\DoubleTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\FloatTag;
+use pocketmine\network\protocol\AvailableCommandsPacket;
 use pocketmine\network\protocol\ContainerSetContentPacket;
 use pocketmine\network\protocol\ContainerSetSlotPacket;
 use pocketmine\network\protocol\DataPacket;
 use pocketmine\network\SourceInterface;
 use pocketmine\Player;
-use pocketmine\plugin\PluginException;
+use pocketmine\Server;
+use pocketmine\utils\PluginException;
 
 class CorePlayer extends Player {
 
@@ -172,13 +175,13 @@ class CorePlayer extends Player {
 	 * @param int $port
 	 */
 	public function __construct(SourceInterface $interface, $clientID, $ip, $port) {
-		parent::__construct($interface, $clientID, $ip, $port);
-		if(($plugin = $this->getServer()->getPluginManager()->getPlugin("Components")) instanceof Main and $plugin->isEnabled()){
+		if(($plugin = Server::getInstance()->getPluginManager()->getPlugin("Components")) instanceof Main and $plugin->isEnabled()){
 			$this->core = $plugin;
 		} else {
 			$this->kick("Error");
 			throw new PluginException("Core plugin isn't loaded!");
 		}
+		parent::__construct($interface, $clientID, $ip, $port);
 	}
 
 	/**
@@ -1101,14 +1104,16 @@ class CorePlayer extends Player {
 	 * @param PlayerDropItemEvent $event
 	 */
 	public function onDrop(PlayerDropItemEvent $event) {
-		$event->setCancelled(true);
+		if(!$this->authenticated)
+			$event->setCancelled(true);
 	}
 
 	/**
 	 * @param PlayerInteractEvent $event
 	 */
 	public function onInteract(PlayerInteractEvent $event) {
-		$event->setCancelled(true);
+		if(!$this->authenticated)
+			$event->setCancelled(true);
 		if($this->authenticated) {
 			$item = $event->getItem();
 			if($item instanceof GUIItem) {
@@ -1121,14 +1126,16 @@ class CorePlayer extends Player {
 	 * @param BlockBreakEvent $event
 	 */
 	public function onBreak(BlockBreakEvent $event) {
-		$event->setCancelled(true);
+		if(!$this->authenticated)
+			$event->setCancelled(true);
 	}
 
 	/**
 	 * @param BlockPlaceEvent $event
 	 */
 	public function onPlace(BlockPlaceEvent $event) {
-		$event->setCancelled(true);
+		if(!$this->authenticated)
+			$event->setCancelled(true);
 	}
 
 	/**

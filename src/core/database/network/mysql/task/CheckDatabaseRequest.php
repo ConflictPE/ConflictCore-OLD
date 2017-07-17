@@ -21,7 +21,7 @@ namespace core\database\network\mysql\task;
 use core\database\network\mysql\MySQLNetworkDatabase;
 use core\database\network\mysql\MySQLNetworkRequest;
 use core\Main;
-use pocketmine\plugin\PluginException;
+use pocketmine\utils\PluginException;
 use pocketmine\Server;
 
 class CheckDatabaseRequest extends MySQLNetworkRequest {

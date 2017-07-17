@@ -21,7 +21,7 @@ namespace core\task;
 use core\CorePlayer;
 use core\language\LanguageManager;
 use core\Main;
-use pocketmine\plugin\PluginException;
+use pocketmine\utils\PluginException;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;

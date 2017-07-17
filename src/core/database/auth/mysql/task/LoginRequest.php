@@ -22,7 +22,7 @@ use core\CorePlayer;
 use core\database\auth\mysql\MySQLAuthDatabase;
 use core\database\auth\mysql\MySQLAuthRequest;
 use core\Main;
-use pocketmine\plugin\PluginException;
+use pocketmine\utils\PluginException;
 use pocketmine\Server;
 
 class LoginRequest extends MySQLAuthRequest {

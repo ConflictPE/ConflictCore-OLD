@@ -43,8 +43,10 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\QueryRegenerateEvent;
 use pocketmine\item\Item;
+use pocketmine\network\protocol\CommandStepPacket;
 use pocketmine\network\protocol\ContainerSetSlotPacket;
 use pocketmine\network\protocol\InteractPacket;
+use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 
 class CoreListener implements Listener {
