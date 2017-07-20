@@ -467,7 +467,6 @@ class CorePlayer extends Player {
 		//}
 		//$this->dataPacket($pk);
 		$this->chatMuted = false;
-		$this->setAuthenticated(true);
 		$this->setLoginTime();
 		/** @var CorePlayer $p */
 		foreach($this->getServer()->getOnlinePlayers() as $p) {
