@@ -466,6 +466,14 @@ class CorePlayer extends Player {
 		//	$pk->slots = array_merge(Item::getCreativeItems(), $this->personalCreativeItems);
 		//}
 		//$this->dataPacket($pk);
+		$this->chatMuted = false;
+		$this->setAuthenticated(true);
+		$this->setLoginTime();
+		/** @var CorePlayer $p */
+		foreach($this->getServer()->getOnlinePlayers() as $p) {
+			$p->showPlayer($this);
+		}
+		$this->spawnKillAuraDetectors();
 		$this->getCore()->getDatabaseManager()->getAuthDatabase()->update($this->getName(), $this->getAuthData());
 	}
 
@@ -766,7 +774,7 @@ class CorePlayer extends Player {
 		if($this->isRegistered()) {
 			if(hash_equals($this->getHash(), Utils::hash(strtolower($this->getName()), $message))) {
 				$this->chatMuted = false;
-				$this->setAuthenticated();
+				$this->setAuthenticated(true);
 				$this->setLoginTime();
 				/** @var CorePlayer $p */
 				foreach($this->getServer()->getOnlinePlayers() as $p) {
