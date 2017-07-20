@@ -70,7 +70,7 @@ class UpdateRequest extends MySQLAuthRequest {
 		if($this->checkConnection($mysqli)) return;
 		$stmt = $mysqli->stmt_init();
 		$stmt->prepare("UPDATE auth SET lastip = ?, lang = ?, coins = ?, timeplayed = timeplayed + ?  WHERE username = ?");
-		$stmt->bind_param("isiis", $this->lastIp, $this->lang, $this->coins, $this->timePlayed, $this->name);
+		$stmt->bind_param("ssiis", $this->lastIp, $this->lang, $this->coins, $this->timePlayed, $this->name);
 		$stmt->execute();
 		if($this->checkError($stmt)) return;
 		if($this->checkAffectedRows($stmt)) return;

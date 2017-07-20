@@ -69,6 +69,7 @@ class LoginRequest extends MySQLAuthRequest {
 						throw new \RuntimeException($result[1]);
 					case self::SUCCESS:
 						$player->setRegistered(true);
+						$player->setLastIp($result[1]["lastip"]);
 						$player->setLocked(((int)$result[1]["islocked"] === 0 ? false : true));
 						$player->setLockReason($result[1]["lockreason"]);
 						$player->setHash((string)$result[1]["hash"]);
@@ -77,7 +78,12 @@ class LoginRequest extends MySQLAuthRequest {
 						$player->setTimePlayed((int)$result[1]["timeplayed"]);
 						$player->addCoins((int)$result[1]["coins"]);
 						$player->sendTranslatedMessage("WELCOME", [$player->getName()], true);
-						$player->sendTranslatedMessage("LOGIN_PROMPT", [], true);
+						if($player->getAddress() === $player->getLastIp()) {
+							$player->setAuthenticated(true);
+							$player->sendTranslatedMessage("IP_REMEMBERED_LOGIN", [], true);
+						} else {
+							$player->sendTranslatedMessage("LOGIN_PROMPT", [], true);
+						}
 						$server->getLogger()->debug("Successfully completed LoginRequest for auth database! User: {$this->name}");
 						return;
 					case self::NO_DATA:

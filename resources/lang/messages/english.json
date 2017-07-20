@@ -1,5 +1,6 @@
 {
   "WELCOME": "&l&6»&7-----------*+*-----------&6«&r \n&r&l&6Conflict&7PE &fHub&r\n&3Welcome back, &b{args1}&3!&r\n&l&6»&7-----------*+*-----------&6«",
+  "IP_REMEMBERED_LOGIN": "&6- §aYou have been logged in automatically!",
   "REGISTER_PROMPT": "&l&a|&7||&r &6Type a password directly into chat to register.",
   "LOGIN_PROMPT": "&e> &6Type your password directly into chat to login.",
   "CONFIRM_PASSWORD_PROMPT": "&l&a||&7|&r &ePlease type your password into chat again to confirm.",

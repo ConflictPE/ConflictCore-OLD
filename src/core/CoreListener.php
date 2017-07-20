@@ -388,6 +388,7 @@ class CoreListener implements Listener {
 	public function onQuit(PlayerQuitEvent $event) {
 		/** @var CorePlayer $player */
 		$player = $event->getPlayer();
+		$this->plugin->getDatabaseManager()->getAuthDatabase()->update($player->getName(), $player->getAuthData());
 		$this->plugin->getFloatingTextManager()->onQuit($player);
 		$event->setQuitMessage("");
 		//$this->plugin->getDatabaseManager()->getAuthDatabase()->update($player->getName(), $player->getAuthData());

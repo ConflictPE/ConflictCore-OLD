@@ -36,11 +36,10 @@ use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\item\Item;
 use pocketmine\math\Vector3;
-use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\Compound;
 use pocketmine\nbt\tag\DoubleTag;
-use pocketmine\nbt\tag\ListTag;
+use pocketmine\nbt\tag\Enum;
 use pocketmine\nbt\tag\FloatTag;
-use pocketmine\network\protocol\AvailableCommandsPacket;
 use pocketmine\network\protocol\ContainerSetContentPacket;
 use pocketmine\network\protocol\ContainerSetSlotPacket;
 use pocketmine\network\protocol\DataPacket;
@@ -59,6 +58,9 @@ class CorePlayer extends Player {
 
 	/** @var bool */
 	private $authenticated = false;
+
+	/** @var string */
+	private $lastIp = "0.0.0.0";
 
 	/** @var bool */
 	private $networkBanned = false;
@@ -210,6 +212,13 @@ class CorePlayer extends Player {
 	 */
 	public function hasPreviousNetworkBan() {
 		return $this->hasPreviousNetworkBan;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLastIp() {
+		return $this->lastIp;
 	}
 
 	/**
@@ -450,13 +459,21 @@ class CorePlayer extends Player {
 		$this->authenticated = $authenticated;
 		$this->inventory->sendContents($this);
 		$this->inventory->sendArmorContents($this);
-		if($this->isSurvival() or $this->isAdventure()) return;
-		$pk = new ContainerSetContentPacket();
-		$pk->windowid = ContainerSetContentPacket::SPECIAL_CREATIVE;
-		if($this->gamemode === Player::CREATIVE) {
-			$pk->slots = array_merge(Item::getCreativeItems(), $this->personalCreativeItems);
-		}
-		$this->dataPacket($pk);
+		//if($this->isSurvival() or $this->isAdventure()) return;
+		//$pk = new ContainerSetContentPacket();
+		//$pk->windowid = ContainerSetContentPacket::SPECIAL_CREATIVE;
+		//if($this->gamemode === Player::CREATIVE) {
+		//	$pk->slots = array_merge(Item::getCreativeItems(), $this->personalCreativeItems);
+		//}
+		//$this->dataPacket($pk);
+		$this->getCore()->getDatabaseManager()->getAuthDatabase()->update($this->getName(), $this->getAuthData());
+	}
+
+	/**
+	 * @param string $ip
+	 */
+	public function setLastIp(string $ip) {
+		$this->lastIp = $ip;
 	}
 
 	/**
@@ -711,30 +728,31 @@ class CorePlayer extends Player {
 	 */
 	public function spawnKillAuraDetectors() {
 		if(Main::$testing) {
-			$nbt = new CompoundTag("", [
-				"Pos" => new ListTag("Pos", [
+			$nbt = new Compound("", [
+				"Pos" => new Enum("Pos", [
 					new DoubleTag("", $this->x),
 					new DoubleTag("", $this->y),
 					new DoubleTag("", $this->z)
 				]),
-				"Motion" => new ListTag("Motion", [
+				"Motion" => new Enum("Motion", [
 					new DoubleTag("", 0),
 					new DoubleTag("", 0),
 					new DoubleTag("", 0)
 				]),
-				"Rotation" => new ListTag("Rotation", [
+				"Rotation" => new Enum("Rotation", [
 					new FloatTag("", 180),
 					new FloatTag("", 0)
 				]),
 			]);
-			$entity = Entity::createEntity("KillAuraDetector", $this->getLevel(), clone $nbt);
+			$chunk = $this->level->getChunk($this->x >> 4, $this->z >> 4);
+			$entity = Entity::createEntity("KillAuraDetector", $chunk, clone $nbt);
 			if($entity instanceof KillAuraDetector) {
 				$entity->setTarget($this);
 				$entity->setOffset(new Vector3(-1, 2.5, -1));
 			} else {
 				$entity->kill();
 			}
-			$entity = Entity::createEntity("KillAuraDetector", $this->getLevel(), clone $nbt);
+			$entity = Entity::createEntity("KillAuraDetector", $chunk, clone $nbt);
 			if($entity instanceof KillAuraDetector) {
 				$entity->setTarget($this);
 				$entity->setOffset(new Vector3(1, -2.5, 1));

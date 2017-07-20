@@ -42,7 +42,9 @@ class UpdateRequestScheduler extends PluginTask {
 		$plugin = $this->getOwner();
 		/** @var CorePlayer $p */
 		foreach($this->getOwner()->getServer()->getOnlinePlayers() as $p) {
-			$plugin->getDatabaseManager()->getAuthDatabase()->update($p->getName(), $p->getAuthData());
+			if($p->isAuthenticated()) {
+				$plugin->getDatabaseManager()->getAuthDatabase()->update($p->getName(), $p->getAuthData());
+			}
 		}
 	}
 
