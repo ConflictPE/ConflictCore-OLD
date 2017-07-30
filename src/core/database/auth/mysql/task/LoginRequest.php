@@ -80,6 +80,7 @@ class LoginRequest extends MySQLAuthRequest {
 						$player->sendTranslatedMessage("WELCOME", [$player->getName()], true);
 						if($player->getAddress() === $player->getLastIp()) {
 							$player->setAuthenticated(true);
+							$player->setChatMuted(false);
 							$player->sendTranslatedMessage("IP_REMEMBERED_LOGIN", [], true);
 						} else {
 							$player->sendTranslatedMessage("LOGIN_PROMPT", [], true);

@@ -388,7 +388,8 @@ class CoreListener implements Listener {
 	public function onQuit(PlayerQuitEvent $event) {
 		/** @var CorePlayer $player */
 		$player = $event->getPlayer();
-		$this->plugin->getDatabaseManager()->getAuthDatabase()->update($player->getName(), $player->getAuthData());
+		if($player->isAuthenticated())
+			$this->plugin->getDatabaseManager()->getAuthDatabase()->update($player->getName(), $player->getAuthData());
 		$this->plugin->getFloatingTextManager()->onQuit($player);
 		$event->setQuitMessage("");
 		//$this->plugin->getDatabaseManager()->getAuthDatabase()->update($player->getName(), $player->getAuthData());
@@ -400,13 +401,14 @@ class CoreListener implements Listener {
 	 * @param PlayerKickEvent $event
 	 */
 	public function onKick(PlayerKickEvent $event) {
-		///** @var CorePlayer $player */
-		//$player = $event->getPlayer();
+		/** @var CorePlayer $player */
+		$player = $event->getPlayer();
 		$event->setQuitMessage("");
 		if($event->getReason() === "disconnectionScreen.serverFull") {
 			$event->setCancelled(true);
 		}
-		//$this->plugin->getDatabaseManager()->getAuthDatabase()->update($player->getName(), $player->getAuthData());
+		if($player->isAuthenticated())
+			$this->plugin->getDatabaseManager()->getAuthDatabase()->update($player->getName(), $player->getAuthData());
 	}
 
 }
