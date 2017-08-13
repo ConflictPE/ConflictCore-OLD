@@ -40,9 +40,11 @@ use pocketmine\nbt\tag\Compound;
 use pocketmine\nbt\tag\DoubleTag;
 use pocketmine\nbt\tag\Enum;
 use pocketmine\nbt\tag\FloatTag;
+use pocketmine\network\multiversion\Multiversion;
 use pocketmine\network\protocol\ContainerSetContentPacket;
 use pocketmine\network\protocol\ContainerSetSlotPacket;
 use pocketmine\network\protocol\DataPacket;
+use pocketmine\network\protocol\v120\Protocol120;
 use pocketmine\network\SourceInterface;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -459,13 +461,6 @@ class CorePlayer extends Player {
 		$this->authenticated = $authenticated;
 		$this->inventory->sendContents($this);
 		$this->inventory->sendArmorContents($this);
-		//if($this->isSurvival() or $this->isAdventure()) return;
-		//$pk = new ContainerSetContentPacket();
-		//$pk->windowid = ContainerSetContentPacket::SPECIAL_CREATIVE;
-		//if($this->gamemode === Player::CREATIVE) {
-		//	$pk->slots = array_merge(Item::getCreativeItems(), $this->personalCreativeItems);
-		//}
-		//$this->dataPacket($pk);
 		$this->chatMuted = false;
 		$this->setLoginTime();
 		/** @var CorePlayer $p */
@@ -474,6 +469,13 @@ class CorePlayer extends Player {
 		}
 		$this->spawnKillAuraDetectors();
 		$this->getCore()->getDatabaseManager()->getAuthDatabase()->update($this->getName(), $this->getAuthData());
+		if($this->isCreative()) {
+			$slots = [];
+			foreach(Item::getCreativeItems() as $item){
+				$slots[] = clone $item;
+			}
+			Multiversion::sendContainer($this, Protocol120::CONTAINER_ID_CREATIVE, $slots);
+		}
 	}
 
 	/**
