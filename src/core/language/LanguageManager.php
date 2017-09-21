@@ -84,6 +84,12 @@ class LanguageManager {
 		"harmless.csv"
 	];
 
+	/** @var array Basic list of profane */
+	public static $profaneList = ["shit", "cunt", "ezz", "gg10", "idiot", "coon", "faggot", "fgt", "bastard", "poo", "bitch", "arse", "bang", "bullshit", "fuc", "fuq", "fat", "ass", "gay", "lesbian", "hoe", "milf", "nazi", "penis", "dick", "cock", "vagina", "pussy", "pussie", "prostitute", "pube", "sex", "sperm", "suck", "swallow", "vibrator", "wanker", "izi", "sperm", "rape", "motherf", "muttha"];
+
+	/** @var string */
+	public $profaneRegex = "";
+
 	/** Language file directory */
 	const BASE_LANGUAGE_DIRECTORY = "lang" . DIRECTORY_SEPARATOR;
 	const MESSAGES_PATH = "messages" . DIRECTORY_SEPARATOR;
@@ -103,15 +109,17 @@ class LanguageManager {
 
 		$this->loadMessages();
 
-		$this->generateSepChars();
+		$this->profaneRegex = "/(" . implode("|", self::$profaneList) . ")/i";
 
-		$this->profane = new WordList($this, self::$profaneFiles);
+		//$this->generateSepChars();
 
-		$this->dating = new WordList($this, self::$datingFiles);
-
-		$this->advertising = new WordList($this, self::$advertisingFiles);
-
-		$this->whitelist = new WordList($this, self::$whitelistedFiles, false);
+		//$this->profane = new WordList($this, self::$profaneFiles);
+		//
+		//$this->dating = new WordList($this, self::$datingFiles);
+		//
+		//$this->advertising = new WordList($this, self::$advertisingFiles);
+		//
+		//$this->whitelist = new WordList($this, self::$whitelistedFiles, false);
 	}
 
 	/**
@@ -150,7 +158,7 @@ class LanguageManager {
 
 	/**
 	 * Load a language into the existing ones
-	 * 
+	 *
 	 * @param $lang
 	 * @param $data
 	 */
@@ -170,7 +178,7 @@ class LanguageManager {
 
 	/**
 	 * Register a message into an existing language
-	 * 
+	 *
 	 * @param $lang
 	 * @param $key
 	 * @param $message
@@ -227,235 +235,249 @@ class LanguageManager {
 	}
 
 	/**
-	 * Check a string against the chat filter
-	 *
-	 * @param $message
-	 *
-	 * @return bool
-	 */
-	public function check($message) {
-		$message = " " . $message . " ";
-
-		if(($type = $this->checkRaw($message)) !== "") return $type;
-
-		$message = strtolower($message);
-
-		$message = $this->whitelist->replaceFromList($message);
-
-		if(($type = $this->detectSpecialWords($message)) !== "") return $type;
-
-		$message = Utils::stripWhiteSpace($this->cleanMessage($message));
-
-		if($this->profane->checkLeet($message)) return self::TYPE_PROFANE;
-
-		if($this->dating->checkLeet($message)) return self::TYPE_DATING;
-
-		return false;
-	}
-
-	protected function checkRaw($string) {
-		$list = [
-			"fu" => [
-				"pattern" => '/' . $this->rawSepList . 'f' . $this->sepList . 'u/i',
-				"type" => self::TYPE_PROFANE
-			],
-			"ef you" => [
-				"pattern" => '/' . $this->rawSepList . 'ef+' . $this->sepList . 'you/i',
-				"type" => self::TYPE_PROFANE
-			],
-			"bch" => [
-				"pattern" => '/ bch /i',
-				"type" => self::TYPE_PROFANE
-			],
-			"s=x" => [
-				"pattern" => '/s=x/i',
-				"type" => self::TYPE_PROFANE
-			],
-			"se*" => [
-				"pattern" => '/se\*/i',
-				"type" => self::TYPE_PROFANE
-			],
-			"s/x" => [
-				"pattern" => '/s[[:punct:]]x/i',
-				"type" => self::TYPE_PROFANE
-			],
-			"b*" => [
-				"pattern" => '/ b(\*|=) /',
-				"type" => self::TYPE_DATING
-			],
-			"gir/" => [
-				"pattern" => '/ gir(\*|\\\|\/) /',
-				"type" => self::TYPE_DATING
-			],
-			"g*" => [
-				"pattern" => '/ g(\*|=) /',
-				"type" => self::TYPE_DATING
-			],
-			"ag.friend" => [
-				"pattern" => '/ a(b|g)[[:punct:]]friend/',
-				"type" => self::TYPE_DATING
-			],
-			"ag.f" => [
-				"pattern" => '/ a(b|g)[[:punct:]]f /',
-				"type" => self::TYPE_DATING
-			],
-			"8==D" => [
-				"pattern" => '/8=+(D|>)/i',
-				"type" => self::TYPE_PROFANE
-			],
-			".|." => [
-				"pattern" => '/\.\|\./i',
-				"type" => self::TYPE_PROFANE
-			],
-			"(.)(.)" => [
-				"pattern" => '/\(\.\)\s*\(\.\)/',
-				"type" => self::TYPE_PROFANE
-			]
-		];
-
-		foreach($list as $key => $pattern) {
-			if(preg_match($pattern["pattern"], $string, $matches)) {
-				if(Main::$debug) {
-					echo "<----------- RAW MESSAGE CHECK ----------->" . PHP_EOL;
-					echo "       TYPE: {$pattern["type"]}" . PHP_EOL;
-				}
-				return $pattern["type"];
-			}
-		}
-
-		return "";
-	}
-
-	/**
-	 * @param string $string
-	 *
-	 * @return string
-	 */
-	protected function detectSpecialWords(string $string) {
-		$string = " " . $string . " ";
-
-		$list = [
-			"eff u" => [
-				"pattern" => '/ ef+ u/',
-				"type" => self::TYPE_PROFANE
-			],
-			"tit" => [
-				"pattern" => '/ tit+ /',
-				"type" => self::TYPE_PROFANE
-			],
-			"tits" => [
-				"pattern" => '/ tit+s/',
-				"type" => self::TYPE_PROFANE
-			],
-			"t i t" => [
-				"pattern" => '/ t i t /',
-				"type" => self::TYPE_PROFANE
-			],
-			"t it" => [
-				"pattern" => '/ t it /',
-				"type" => self::TYPE_PROFANE
-			],
-			"ass" => [
-				"pattern" => '/ ass /',
-				"type" => self::TYPE_PROFANE
-			],
-			" sx" => [
-				"pattern" => '/ sx/',
-				"type" => self::TYPE_PROFANE
-			],
-			"a s s" => [
-				"pattern" => '/ a s s/',
-				"type" => self::TYPE_PROFANE
-			],
-			" g|b f " => [
-				"pattern" => '/' . $this->rawSepList . '(g+|b+)' . $this->sepList . 'f/',
-				"type" => self::TYPE_DATING
-			],
-			" s*x" => [
-				"pattern" => '/' . $this->rawSepList . '(s+)' . $this->rawSepList . 'x+/',
-				"type" => self::TYPE_DATING
-			],
-			" u r hot" => [
-				"pattern" => '/' . $this->rawSepList . '(u+)' . $this->rawSepList . 'r+' . $this->rawSepList . 'hot/',
-				"type" => self::TYPE_DATING
-			],
-			" u r so hot" => [
-				"pattern" => '/' . $this->rawSepList . '(u+)' . $this->rawSepList . 'r+' . $this->rawSepList . 'so' . $this->rawSepList . 'hot/',
-				"type" => self::TYPE_DATING
-			],
-			"dotnet" => [
-				"pattern" => '/\.net/',
-				"type" => self::TYPE_GENERAL
-			],
-			"dotcom" => [
-				"pattern" => '/\.com/',
-				"type" => self::TYPE_GENERAL
-			],
-			"dotme" => [
-				"pattern" => '/\.me/',
-				"type" => self::TYPE_GENERAL
-			],
-		];
-
-		foreach($list as $key => $pattern) {
-			if(preg_match($pattern["pattern"], $string, $matches)) {
-				if(Main::$debug) {
-					echo "<----------- Special MESSAGE CHECK ----------->" . PHP_EOL;
-					echo "        TYPE: {$pattern["type"]}" . PHP_EOL;
-				}
-				return $pattern["type"];
-			}
-		}
-
-		return "";
-	}
-
-	/**
-	 * Change special upper and lower case characters to their normal letters.
-	 * Only characters that are 99% likely to be used in place of their normal character.
+	 * Quick profane check
 	 *
 	 * @param string $message
 	 *
-	 * @return mixed|string
+	 * @return bool
 	 */
-	public function cleanMessage(string $message) {
-		$output = $message;
-		$output = preg_replace("/A|Á|á|À|Â|à|Â|â|Ä|ä|Ã|ã|Å|å|α|Δ|Λ|λ/", "a", $output);
-		$output = preg_replace("/Β/", "b", $output);
-		$output = preg_replace("/C|Ç|ç|¢|©/", "c", $output);
-		$output = preg_replace("/D|Þ|þ|Ð|ð/", "d", $output);
-		$output = preg_replace("/E|€|È|è|É|é|Ê|ê|∑|£|€/", "e", $output);
-		$output = preg_replace("/F|ƒ/", "f", $output);
-		$output = preg_replace("/G/", "g", $output);
-		$output = preg_replace("/H/", "h", $output);
-		$output = preg_replace("/I|Ì|Í|Î|Ï|ì|í|î|ï/", "i", $output);
-		$output = preg_replace("/J/", "j", $output);
-		$output = preg_replace("/Κ|κ/", "k", $output);
-		$output = preg_replace("/L|£/", "l", $output);
-		$output = preg_replace("/M/", "m", $output);
-		$output = preg_replace("/N|η|ñ|Ν|Π/", "n", $output);
-		$output = preg_replace("/O|Ο|○|ο|Φ|¤|°|ø|ö|ó/", "o", $output);
-		$output = preg_replace("/P|ρ|Ρ|¶|þ/", "p", $output);
-		$output = preg_replace("/Q/", "q", $output);
-		$output = preg_replace("/R|®/", "r", $output);
-		$output = preg_replace("/S/", "s", $output);
-		$output = preg_replace("/Τ|τ/", "t", $output);
-		$output = preg_replace("/U|υ|µ/", "u", $output);
-		$output = preg_replace("/V|ν/", "v", $output);
-		$output = preg_replace("/W|ω|ψ|Ψ/", "w", $output);
-		$output = preg_replace("/Χ|χ|×/", "x", $output);
-		$output = preg_replace("/Y|¥|γ|ÿ|ý|Ÿ|Ý/", "y", $output);
-		$output = preg_replace("/Z/", "z", $output);
-		return $output;
+	public function quickFilter(string $message) : bool {
+		if(preg_match($this->profaneRegex, $message)) {
+			return true;
+		}
+		return false;
 	}
 
-	public function generateSepChars() {
-		$this->rawSepList = '(\'|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\_|\+|\-|\=| '; // Top row of a Qwerty keyboard, in order, AND SPACE
-		$this->rawSepList .= '|\{|\}|\||\[|\]|\\\\|\:|\"|\;|\'|\<|\>|\?|\,|\.|\/|\"'; // Right side of keyboard, working our way down
-		$this->rawSepList .= '|\~|\`|\´|\d'; // Remaining two in the upper left, and the number one.
-		$this->rawSepList .= ')+'; // Closing of regex group, and quantifier (zero to unlimited times)
-		$this->sepList = rtrim($this->rawSepList, "+")."*";
-	}
+	///**
+	// * Check a string against the chat filter
+	// *
+	// * @param $message
+	// *
+	// * @return bool
+	// */
+	//public function check($message) {
+	//	$message = " " . $message . " ";
+	//
+	//	if(($type = $this->checkRaw($message)) !== "") return $type;
+	//
+	//	$message = strtolower($message);
+	//
+	//	$message = $this->whitelist->replaceFromList($message);
+	//
+	//	if(($type = $this->detectSpecialWords($message)) !== "") return $type;
+	//
+	//	$message = Utils::stripWhiteSpace($this->cleanMessage($message));
+	//
+	//	if($this->profane->checkLeet($message)) return self::TYPE_PROFANE;
+	//
+	//	if($this->dating->checkLeet($message)) return self::TYPE_DATING;
+	//
+	//	return false;
+	//}
+
+	//protected function checkRaw($string) {
+	//	$list = [
+	//		"fu" => [
+	//			"pattern" => '/' . $this->rawSepList . 'f' . $this->sepList . 'u/i',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"ef you" => [
+	//			"pattern" => '/' . $this->rawSepList . 'ef+' . $this->sepList . 'you/i',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"bch" => [
+	//			"pattern" => '/ bch /i',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"s=x" => [
+	//			"pattern" => '/s=x/i',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"se*" => [
+	//			"pattern" => '/se\*/i',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"s/x" => [
+	//			"pattern" => '/s[[:punct:]]x/i',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"b*" => [
+	//			"pattern" => '/ b(\*|=) /',
+	//			"type" => self::TYPE_DATING
+	//		],
+	//		"gir/" => [
+	//			"pattern" => '/ gir(\*|\\\|\/) /',
+	//			"type" => self::TYPE_DATING
+	//		],
+	//		"g*" => [
+	//			"pattern" => '/ g(\*|=) /',
+	//			"type" => self::TYPE_DATING
+	//		],
+	//		"ag.friend" => [
+	//			"pattern" => '/ a(b|g)[[:punct:]]friend/',
+	//			"type" => self::TYPE_DATING
+	//		],
+	//		"ag.f" => [
+	//			"pattern" => '/ a(b|g)[[:punct:]]f /',
+	//			"type" => self::TYPE_DATING
+	//		],
+	//		"8==D" => [
+	//			"pattern" => '/8=+(D|>)/i',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		".|." => [
+	//			"pattern" => '/\.\|\./i',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"(.)(.)" => [
+	//			"pattern" => '/\(\.\)\s*\(\.\)/',
+	//			"type" => self::TYPE_PROFANE
+	//		]
+	//	];
+	//
+	//	foreach($list as $key => $pattern) {
+	//		if(preg_match($pattern["pattern"], $string, $matches)) {
+	//			if(Main::$debug) {
+	//				echo "<----------- RAW MESSAGE CHECK ----------->" . PHP_EOL;
+	//				echo "       TYPE: {$pattern["type"]}" . PHP_EOL;
+	//			}
+	//			return $pattern["type"];
+	//		}
+	//	}
+	//
+	//	return "";
+	//}
+
+	///**
+	// * @param string $string
+	// *
+	// * @return string
+	// */
+	//protected function detectSpecialWords(string $string) {
+	//	$string = " " . $string . " ";
+	//
+	//	$list = [
+	//		"eff u" => [
+	//			"pattern" => '/ ef+ u/',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"tit" => [
+	//			"pattern" => '/ tit+ /',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"tits" => [
+	//			"pattern" => '/ tit+s/',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"t i t" => [
+	//			"pattern" => '/ t i t /',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"t it" => [
+	//			"pattern" => '/ t it /',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"ass" => [
+	//			"pattern" => '/ ass /',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		" sx" => [
+	//			"pattern" => '/ sx/',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		"a s s" => [
+	//			"pattern" => '/ a s s/',
+	//			"type" => self::TYPE_PROFANE
+	//		],
+	//		" g|b f " => [
+	//			"pattern" => '/' . $this->rawSepList . '(g+|b+)' . $this->sepList . 'f/',
+	//			"type" => self::TYPE_DATING
+	//		],
+	//		" s*x" => [
+	//			"pattern" => '/' . $this->rawSepList . '(s+)' . $this->rawSepList . 'x+/',
+	//			"type" => self::TYPE_DATING
+	//		],
+	//		" u r hot" => [
+	//			"pattern" => '/' . $this->rawSepList . '(u+)' . $this->rawSepList . 'r+' . $this->rawSepList . 'hot/',
+	//			"type" => self::TYPE_DATING
+	//		],
+	//		" u r so hot" => [
+	//			"pattern" => '/' . $this->rawSepList . '(u+)' . $this->rawSepList . 'r+' . $this->rawSepList . 'so' . $this->rawSepList . 'hot/',
+	//			"type" => self::TYPE_DATING
+	//		],
+	//		"dotnet" => [
+	//			"pattern" => '/\.net/',
+	//			"type" => self::TYPE_GENERAL
+	//		],
+	//		"dotcom" => [
+	//			"pattern" => '/\.com/',
+	//			"type" => self::TYPE_GENERAL
+	//		],
+	//		"dotme" => [
+	//			"pattern" => '/\.me/',
+	//			"type" => self::TYPE_GENERAL
+	//		],
+	//	];
+	//
+	//	foreach($list as $key => $pattern) {
+	//		if(preg_match($pattern["pattern"], $string, $matches)) {
+	//			if(Main::$debug) {
+	//				echo "<----------- Special MESSAGE CHECK ----------->" . PHP_EOL;
+	//				echo "        TYPE: {$pattern["type"]}" . PHP_EOL;
+	//			}
+	//			return $pattern["type"];
+	//		}
+	//	}
+	//
+	//	return "";
+	//}
+
+	///**
+	// * Change special upper and lower case characters to their normal letters.
+	// * Only characters that are 99% likely to be used in place of their normal character.
+	// *
+	// * @param string $message
+	// *
+	// * @return mixed|string
+	// */
+	//public function cleanMessage(string $message) {
+	//	$output = $message;
+	//	$output = preg_replace("/A|Á|á|À|Â|à|Â|â|Ä|ä|Ã|ã|Å|å|α|Δ|Λ|λ/", "a", $output);
+	//	$output = preg_replace("/Β/", "b", $output);
+	//	$output = preg_replace("/C|Ç|ç|¢|©/", "c", $output);
+	//	$output = preg_replace("/D|Þ|þ|Ð|ð/", "d", $output);
+	//	$output = preg_replace("/E|€|È|è|É|é|Ê|ê|∑|£|€/", "e", $output);
+	//	$output = preg_replace("/F|ƒ/", "f", $output);
+	//	$output = preg_replace("/G/", "g", $output);
+	//	$output = preg_replace("/H/", "h", $output);
+	//	$output = preg_replace("/I|Ì|Í|Î|Ï|ì|í|î|ï/", "i", $output);
+	//	$output = preg_replace("/J/", "j", $output);
+	//	$output = preg_replace("/Κ|κ/", "k", $output);
+	//	$output = preg_replace("/L|£/", "l", $output);
+	//	$output = preg_replace("/M/", "m", $output);
+	//	$output = preg_replace("/N|η|ñ|Ν|Π/", "n", $output);
+	//	$output = preg_replace("/O|Ο|○|ο|Φ|¤|°|ø|ö|ó/", "o", $output);
+	//	$output = preg_replace("/P|ρ|Ρ|¶|þ/", "p", $output);
+	//	$output = preg_replace("/Q/", "q", $output);
+	//	$output = preg_replace("/R|®/", "r", $output);
+	//	$output = preg_replace("/S/", "s", $output);
+	//	$output = preg_replace("/Τ|τ/", "t", $output);
+	//	$output = preg_replace("/U|υ|µ/", "u", $output);
+	//	$output = preg_replace("/V|ν/", "v", $output);
+	//	$output = preg_replace("/W|ω|ψ|Ψ/", "w", $output);
+	//	$output = preg_replace("/Χ|χ|×/", "x", $output);
+	//	$output = preg_replace("/Y|¥|γ|ÿ|ý|Ÿ|Ý/", "y", $output);
+	//	$output = preg_replace("/Z/", "z", $output);
+	//	return $output;
+	//}
+	//
+	//public function generateSepChars() {
+	//	$this->rawSepList = '(\'|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\_|\+|\-|\=| '; // Top row of a Qwerty keyboard, in order, AND SPACE
+	//	$this->rawSepList .= '|\{|\}|\||\[|\]|\\\\|\:|\"|\;|\'|\<|\>|\?|\,|\.|\/|\"'; // Right side of keyboard, working our way down
+	//	$this->rawSepList .= '|\~|\`|\´|\d'; // Remaining two in the upper left, and the number one.
+	//	$this->rawSepList .= ')+'; // Closing of regex group, and quantifier (zero to unlimited times)
+	//	$this->sepList = rtrim($this->rawSepList, "+")."*";
+	//}
 
 	/**
 	 * Check a message for a players hash

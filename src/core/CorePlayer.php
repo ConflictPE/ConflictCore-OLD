@@ -1055,8 +1055,8 @@ class CorePlayer extends Player {
 		$event->setCancelled();
 		if($this->authenticated) {
 			$start = microtime(true);
-			if(($key = $this->getCore()->getLanguageManager()->check($message)) !== false) {
-				$this->sendTranslatedMessage(($key === "" ? "BLOCKED_MESSAGE" : $key), [], true);
+			if($this->getCore()->getLanguageManager()->quickFilter($message)) {
+				$this->sendTranslatedMessage("BLOCKED_MESSAGE", [], true);
 			} else {
 				//$this->getServer()->getScheduler()->scheduleAsyncTask(new CheckMessageTask($this->getName(), $this->hash, $this->lastMessage, $this->lastMessageTime, $message, $this->chatMuted));
 				if(!$this->hasChatMuted()) {
@@ -1131,7 +1131,7 @@ class CorePlayer extends Player {
 	 * @param PlayerDropItemEvent $event
 	 */
 	public function onDrop(PlayerDropItemEvent $event) {
-		if(!$this->authenticated)
+		if(!$this->isAuthenticated())
 			$event->setCancelled(true);
 	}
 
@@ -1139,13 +1139,13 @@ class CorePlayer extends Player {
 	 * @param PlayerInteractEvent $event
 	 */
 	public function onInteract(PlayerInteractEvent $event) {
-		if(!$this->authenticated)
-			$event->setCancelled(true);
-		if($this->authenticated) {
+		if($this->isAuthenticated()) {
 			$item = $event->getItem();
 			if($item instanceof GUIItem) {
 				$item->handleClick($this, true);
 			}
+		} else {
+			$event->setCancelled(true);
 		}
 	}
 
@@ -1153,7 +1153,7 @@ class CorePlayer extends Player {
 	 * @param BlockBreakEvent $event
 	 */
 	public function onBreak(BlockBreakEvent $event) {
-		if(!$this->authenticated)
+		if(!$this->isAuthenticated())
 			$event->setCancelled(true);
 	}
 
